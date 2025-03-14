@@ -1,11 +1,8 @@
-import { Injectable } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import * as path from 'path';
 
-@Injectable()
-export class UploadService {
-  createFileInterceptor() {
+export const CustomUploadInterceptor = () => {
     return FileInterceptor('file', {
         storage: diskStorage({
             destination: './uploads', 
@@ -15,5 +12,5 @@ export class UploadService {
             }
         })
     })
-  }
+  
 }
