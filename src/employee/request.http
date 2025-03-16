@@ -12,6 +12,27 @@ Content-Type: application/json
     "dateOfHire":"2025-03-26"
 }
 
+
+
+
 ### Listing all employees
 
 GET http://localhost:3000/employees/all
+
+
+
+
+### Updating an existing employee
+
+PATCH  http://localhost:3000/employees/1 
+Content-Type: application/json
+
+{
+    "fullName":"Yannick Zahinda Mulikuza",
+    "salary":5000
+}
+
+
+### Finding one employee
+
+GET http://localhost:3000/employees/1
