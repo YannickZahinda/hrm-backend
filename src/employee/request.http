@@ -1,6 +1,6 @@
 ### Creating an employee
 
-POST http://localhost:3000/employee
+POST http://localhost:3000/employees
 Content-Type: application/json
 
 {
@@ -11,3 +11,7 @@ Content-Type: application/json
     "dateOfBirth":"2000-04-05",
     "dateOfHire":"2025-03-26"
 }
+
+### Listing all employees
+
+GET http://localhost:3000/employees/all

@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Employee } from './employee.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { UpdateEmployeeDto } from './dto/update-employee.dto';
 
 @Injectable()
 export class EmployeeService {
@@ -10,7 +11,7 @@ export class EmployeeService {
         @InjectRepository(Employee) private employeeRepo: Repository<Employee>,
     ){}
 
-    async findAll(){
+    async findAll():Promise<Employee[]>{
         return await this.employeeRepo.find({relations: ['documents']});
     }
 
@@ -19,7 +20,19 @@ export class EmployeeService {
         return await this.employeeRepo.save(employee);
     }
 
-    async remove(id: number){
+    async update(id: string, updateEmployeeDto: UpdateEmployeeDto):Promise<Employee>{
+        const employee = await this.employeeRepo.findOne({ where: {id: Number(id)} });
+
+        if(!employee) {
+            throw new NotFoundException(`Employee with ID ${id} not found`)
+        }
+
+        Object.assign(employee, updateEmployeeDto);
+        return this.employeeRepo.save(employee)
+    }
+
+
+    async remove(id: string){
         return await this.employeeRepo.delete(id);
     }
 
