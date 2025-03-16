@@ -1,5 +1,4 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
-import { error } from "console";
 import { Observable, catchError, tap, throwError } from "rxjs";
 
 @Injectable()

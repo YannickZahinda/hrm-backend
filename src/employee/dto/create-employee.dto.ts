@@ -7,6 +7,9 @@ export class CreateEmployeeDto {
     @IsString()
     role: string;
 
+    @IsString()
+    department: string
+
     @IsNumber()
     salary: number;
 
