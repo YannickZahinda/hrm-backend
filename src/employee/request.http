@@ -4,10 +4,10 @@ POST http://localhost:3000/employees
 Content-Type: application/json
 
 {
-    "fullName":"Yannick Zahinda",
-    "role":"Developer",
+    "fullName":"Joh Doe",
+    "role":"Manager",
     "department":"Information Technology",
-    "salary":1500,
+    "salary":2300,
     "dateOfBirth":"2000-04-05",
     "dateOfHire":"2025-03-26"
 }
@@ -36,3 +36,8 @@ Content-Type: application/json
 ### Finding one employee
 
 GET http://localhost:3000/employees/1
+
+
+### Deleting an employee
+
+DELETE http://localhost:3000/employees/2

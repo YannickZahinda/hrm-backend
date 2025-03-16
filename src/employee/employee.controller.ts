@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -14,7 +14,7 @@ export class EmployeeController {
   }
 
   @Get(':id')
-  findOneEmployee(@Param('id') id: number){
+  getEmployee(@Param('id') id: number){
     return this.employeeService.findOne(id)
   }
 
@@ -28,6 +28,11 @@ export class EmployeeController {
     @Param('id') id: string,
     @Body() updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<Employee> {
-    return this.employeeService.update(id, updateEmployeeDto);
+    return await this.employeeService.update(id, updateEmployeeDto);
+  }
+
+  @Delete(':id')
+  async deleteEmployee(@Param('id') id: number) {
+    return await this.employeeService.remove(id)
   }
 }

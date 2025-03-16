@@ -36,7 +36,7 @@ export class EmployeeService {
     }
 
 
-    async remove(id: string){
+    async remove(id: number){
         return await this.employeeRepo.delete(id);
     }
 
