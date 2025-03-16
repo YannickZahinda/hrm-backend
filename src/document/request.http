@@ -1,0 +1,12 @@
+### Uploading a document
+
+POST http://localhost:3000/documents/upload/1
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="document.pdf"
+Content-Type: application/pdf
+
+< insert file content here >
+
+--boundary--
