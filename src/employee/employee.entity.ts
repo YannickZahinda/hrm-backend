@@ -24,7 +24,7 @@ export class Employee {
     @Column({type: 'date', default: () => 'CURRENT_DATE'})
     dateOfHire: Date;
 
-    @Column({ type: 'enum', enum: ['present', 'absent', 'onleave'], default: 'present'})
+    @Column({ type: 'text', default: 'present'})
     attendance: 'present' | 'absent' | 'onleave';
 
     @OneToMany(() => Document, (document) => document.employee)

@@ -41,3 +41,12 @@ GET http://localhost:3000/employees/1
 ### Deleting an employee
 
 DELETE http://localhost:3000/employees/2
+
+### updating employee attendance
+
+PATCH  http://localhost:3000/employees/1/attendance
+Content-Type: application/json
+
+{
+    "attendance":"onleave"
+}

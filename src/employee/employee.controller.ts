@@ -13,6 +13,7 @@ import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { Employee } from './employee.entity';
+import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 
 @Controller('employees')
 export class EmployeeController {
@@ -44,11 +45,11 @@ export class EmployeeController {
   @Patch('/:id/attendance')
   async updateAttendance(
     @Param('id', ParseIntPipe) id: number,
-    @Body() attendance: { attendance: 'present' | 'absent' | 'onleave' },
+    @Body() updateAttendanceDto: UpdateAttendanceDto
   ) {
     const updateEmployeeAttendance = await this.employeeService.updateAttendance(
       id,
-      attendance.attendance,
+      updateAttendanceDto.attendance,
     );
 
     if (!updateEmployeeAttendance) {

@@ -16,7 +16,7 @@ export class EmployeeService {
     }
 
     async findOne(id: number):Promise<Employee | null> {
-        return await this.employeeRepo.findOne({where: {id}})
+        return await this.employeeRepo.findOne({where: {id}, relations: ['documents']})
     }
 
     async create(createEmployeeDto: CreateEmployeeDto) {

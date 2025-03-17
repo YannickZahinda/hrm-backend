@@ -6,9 +6,7 @@ import { Employee } from './employee/employee.entity';
 import { Document } from './document/document.entity';
 import { EmployeeModule } from './employee/employee.module';
 import { DocumentModule } from './document/document.module';
-import { AttendanceController } from './attendance/attendance.controller';
-import { AttendanceService } from './attendance/attendance.service';
-import { AttendancModule } from './attendanc/attendanc.module';
+
 
 @Module({
   imports: [
@@ -21,9 +19,8 @@ import { AttendancModule } from './attendanc/attendanc.module';
     TypeOrmModule.forFeature([Employee, Document]),
     EmployeeModule,
     DocumentModule,
-    AttendancModule,
   ],
-  controllers: [AppController, AttendanceController],
-  providers: [AppService, AttendanceService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
