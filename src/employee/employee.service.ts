@@ -35,6 +35,14 @@ export class EmployeeService {
         return this.employeeRepo.save(employee)
     }
 
+    async updateAttendance(
+        id: number,
+        attendance: 'present' | 'absent' | 'onleave',
+    ): Promise<Employee | null> {
+        await this.employeeRepo.update(id, {attendance});
+        return this.findOne(id);
+    }
+
 
     async remove(id: number){
         return await this.employeeRepo.delete(id);

@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -14,8 +24,8 @@ export class EmployeeController {
   }
 
   @Get(':id')
-  getEmployee(@Param('id') id: number){
-    return this.employeeService.findOne(id)
+  getEmployee(@Param('id') id: number) {
+    return this.employeeService.findOne(id);
   }
 
   @Post()
@@ -31,8 +41,25 @@ export class EmployeeController {
     return await this.employeeService.update(id, updateEmployeeDto);
   }
 
+  @Patch('/:id/attendance')
+  async updateAttendance(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() attendance: { attendance: 'present' | 'absent' | 'onleave' },
+  ) {
+    const updateEmployeeAttendance = await this.employeeService.updateAttendance(
+      id,
+      attendance.attendance,
+    );
+
+    if (!updateEmployeeAttendance) {
+      throw new NotFoundException(`Employee with ID ${id} was not found`);
+    }
+
+    return updateEmployeeAttendance;
+  }
+
   @Delete(':id')
   async deleteEmployee(@Param('id') id: number) {
-    return await this.employeeService.remove(id)
+    return await this.employeeService.remove(id);
   }
 }
