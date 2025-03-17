@@ -43,6 +43,22 @@ export class EmployeeService {
         return this.findOne(id);
     }
 
+    async updateContractType(
+        id: number,
+        contractType: 'CDI' | 'CDD',
+    ): Promise <Employee | null >{
+        await this.employeeRepo.update(id, {contractType});
+        return this.findOne(id)
+    }
+
+    async updateCategory(
+        id: number,
+        category: 'CC2' | 'CC1' | 'M4' | 'MS' | 'SQ' | 'M1' | 'HQ',
+    ): Promise <Employee | null > {
+        await this.employeeRepo.update(id, {category});
+        return this.findOne(id)
+    }
+
 
     async remove(id: number){
         return await this.employeeRepo.delete(id);

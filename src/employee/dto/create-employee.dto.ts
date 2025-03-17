@@ -13,6 +13,9 @@ export class CreateEmployeeDto {
     @IsNumber()
     salary: number;
 
+    @IsString()
+    noMatricule: string
+
     @IsDate()
     date0fBirth: Date;
 

@@ -27,6 +27,15 @@ export class Employee {
     @Column({ type: 'text', default: 'present'})
     attendance: 'present' | 'absent' | 'onleave';
 
+    @Column({ type: 'text', default: 'CC2'})
+    category: 'CC2' | 'CC1' | 'M4' | 'MS' | 'SQ' | 'M1' | 'HQ';
+
+    @Column({type: 'text', default: 'CDD'})
+    contractType: 'CDI' | 'CDD';
+
+    @Column({type: 'varchar', length: 50, nullable: true})
+    noMatricule: string;
+
     @OneToMany(() => Document, (document) => document.employee)
     documents: Document[];
 
