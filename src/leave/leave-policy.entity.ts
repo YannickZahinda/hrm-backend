@@ -12,7 +12,7 @@ export class LeavePolicy {
     waitingPeriodMonths: number;
 
     @Column({nullable: true})
-    leaveDaysEntitle: number;
+    leaveDaysEntitled: number;
 
     @Column({default: true})
     isActive: boolean;

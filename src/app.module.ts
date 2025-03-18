@@ -11,7 +11,7 @@ import { LeaveService } from './leave/leave.service';
 import { LeaveModule } from './leave/leave.module';
 import { Leave } from './leave/leave.entity';
 import { LeaveBalance } from './leave/leave-balance.entity';
-import { LeavePolicy } from './leave/leave-policy.enty';
+import { LeavePolicy } from './leave/leave-policy.entity';
 
 
 @Module({
@@ -25,9 +25,8 @@ import { LeavePolicy } from './leave/leave-policy.enty';
     TypeOrmModule.forFeature([Employee, Document, Leave, LeaveBalance, LeavePolicy]),
     EmployeeModule,
     DocumentModule,
-    LeaveModule,
   ],
-  controllers: [AppController, LeaveController],
-  providers: [AppService, LeaveService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

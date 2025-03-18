@@ -6,7 +6,7 @@ export class Leave {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text', default: 'CC2 leave type' })
+  @Column({ type: 'text', default: 'regular' })
   // leaveType: 'CC2 leave type' | 'CC1 & M4 leave type' | 'MS & SQ & M1 & HQ leave type'
   leaveType: 'regular' | 'sick' | 'special';
 

@@ -4,7 +4,7 @@ import { LeaveBalance } from './leave-balance.entity';
 import { Leave } from './leave.entity';
 import { LeaveService } from './leave.service';
 import { LeaveController } from './leave.controller';
-import { LeavePolicy } from './leave-policy.enty';
+import { LeavePolicy } from './leave-policy.entity';
 import { Employee } from 'src/employee/employee.entity';
 
 @Module({

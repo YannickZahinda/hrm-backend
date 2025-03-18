@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Leave } from './leave.entity';
 import { LeaveBalance } from './leave-balance.entity';
-import { LeavePolicy } from './leave-policy.enty';
+import { LeavePolicy } from './leave-policy.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Employee } from 'src/employee/employee.entity';
 
 @Injectable()
@@ -24,6 +24,14 @@ export class LeaveService {
     const policy = await this.leavePolicyRepo.findOne({
       where: { employeCategory: employee?.category, isActive: true },
     });
+
+    if(!employee){
+      throw new NotFoundException(`Employee with ID${employeeId} was not found`)
+    }
+
+    if(!policy){
+      throw new NotFoundException(`No active leave policy found for employee category: ${employee.category}`)
+    }
 
     //calculate hire date + waiting period
     const hireDate = employee?.dateOfHire
@@ -144,5 +152,43 @@ export class LeaveService {
         leaveDaysEntitled: 21,
       });
     }
+
+    const existingPolicy = await this.leavePolicyRepo.findOne({
+      where: {employeCategory: 'CC2', isActive: true}
+    });
+
+    if(!existingPolicy){
+      await this.leavePolicyRepo.save({
+        employeeCategory: 'CC2',
+        waitingPeriodMonths: 3,
+        leaveDaysEntitled: 15,
+      })
+    }
+  }
+
+  async getUpcomingLeaveEligibility() {
+    const today = new Date();
+    const thirtyDaysLater = new Date(today);
+    thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
+
+    //finding all employees becoming eligible for leave in the next 30 days
+    const upcomingEligibility = await this.leaveBalanceRepo.find({
+      where: {
+        nextEligibleLeaveBalance: Between(today, thirtyDaysLater)
+      },
+      relations: ['employee']
+    });
+
+    return upcomingEligibility.map(balance => {
+      const daysUntilEligible = Math.ceil(
+        (balance.nextEligibleLeaveBalance.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      return {
+        employee: balance.employee,
+        eligibleDate: balance.nextEligibleLeaveBalance,
+        daysUntilEligible
+      }
+    })
+
   }
 }
