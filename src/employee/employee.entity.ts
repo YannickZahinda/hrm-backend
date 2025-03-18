@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from "typeorm";
 import { Document } from "src/document/document.entity";
+import { Leave } from "src/leave/leave.entity";
+import { LeaveBalance } from "src/leave/leave-balance.entity";
 
 @Entity()
 export class Employee {
@@ -38,5 +40,11 @@ export class Employee {
 
     @OneToMany(() => Document, (document) => document.employee)
     documents: Document[];
+
+    @OneToMany(() => Leave, (leave) => leave.employee)
+    leaves: Leave[];
+
+    @OneToOne(() => LeaveBalance, (LeaveBalance) => LeaveBalance.employee)
+    leaveBalance: LeaveBalance;
 
 }

@@ -6,6 +6,12 @@ import { Employee } from './employee/employee.entity';
 import { Document } from './document/document.entity';
 import { EmployeeModule } from './employee/employee.module';
 import { DocumentModule } from './document/document.module';
+import { LeaveController } from './leave/leave.controller';
+import { LeaveService } from './leave/leave.service';
+import { LeaveModule } from './leave/leave.module';
+import { Leave } from './leave/leave.entity';
+import { LeaveBalance } from './leave/leave-balance.entity';
+import { LeavePolicy } from './leave/leave-policy.enty';
 
 
 @Module({
@@ -13,14 +19,15 @@ import { DocumentModule } from './document/document.module';
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'database.sqlite',
-      entities: [Employee, Document],
+      entities: [Employee, Document, Leave, LeaveBalance, LeavePolicy],
       synchronize: true
     }),
-    TypeOrmModule.forFeature([Employee, Document]),
+    TypeOrmModule.forFeature([Employee, Document, Leave, LeaveBalance, LeavePolicy]),
     EmployeeModule,
     DocumentModule,
+    LeaveModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, LeaveController],
+  providers: [AppService, LeaveService],
 })
 export class AppModule {}
