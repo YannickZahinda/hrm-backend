@@ -129,45 +129,39 @@ export class LeaveService {
   //initializing system with leave policies
 
   async initializeLeavePolicies() {
-    //CC2 category (15 days after 3 months)
-    await this.leavePolicyRepo.save({
-      employeeCategory: 'CC2',
-      waitingPeriodMonths: 3,
-      leaveDaysEntitled: 15,
-    });
+    try {
+      await this.leavePolicyRepo.clear();
 
-    // CC1 and M4 categories (21 days after 6 months)
-    await this.leavePolicyRepo.save({
-      employeeCategory: 'CC1',
-      waitingPeriodMonths: 6,
-      leaveDaysEntitled: 21,
-    });
+      const policyConfigs = [
+        { category: 'CC2', waitingMonths: 3, leaveDays: 15 },
+        { category: 'CC1', waitingMonths: 6, leaveDays: 21 },
+        { category: 'M4', waitingMonths: 6, leaveDays: 21 },
+        { category: 'MS', waitingMonths: 12, leaveDays: 21 },
+        { category: 'SQ', waitingMonths: 12, leaveDays: 21 },
+        { category: 'M1', waitingMonths: 12, leaveDays: 21 },
+        { category: 'HQ', waitingMonths: 12, leaveDays: 21 },
+      ]as const;
 
-    await this.leavePolicyRepo.save({
-      employeeCategory: 'M4',
-      waitingPeriodMonths: 6,
-      leaveDaysEntitled: 21,
-    });
-
-    // MS, SQ, M1, HQ categories (21 days after 12 months)
-    for (const category of ['MS', 'SQ', 'M1', 'HQ']) {
-      await this.leavePolicyRepo.save({
-        employeeCategory: category,
-        waitingPeriodMonths: 12,
-        leaveDaysEntitled: 21,
+      // Create and save each policy individually
+      const promises = policyConfigs.map((config) => {
+        return this.leavePolicyRepo.save({
+          employeCategory: config.category,
+          waitingPeriodMonths: config.waitingMonths,
+          leaveDaysEntitled: config.leaveDays,
+          isActive: true,
+          effectiveDate: new Date(),
+        });
       });
-    }
 
-    const existingPolicy = await this.leavePolicyRepo.findOne({
-      where: { employeCategory: 'CC2', isActive: true },
-    });
+      // Wait for all saves to complete
+      const newPolicies = await Promise.all(promises);
 
-    if (!existingPolicy) {
-      await this.leavePolicyRepo.save({
-        employeeCategory: 'CC2',
-        waitingPeriodMonths: 3,
-        leaveDaysEntitled: 15,
-      });
+      return newPolicies;
+    } catch (error) {
+      console.error('ERreor resetting leave policies: ', error);
+      throw new Error(
+        `Failed to reset and initialize leave policies: ${error.message}`,
+      );
     }
   }
 
@@ -212,18 +206,28 @@ export class LeaveService {
     const leaveBalance = await this.leaveBalanceRepo.findOne({
       where: { employee: { id: employeeId } },
     });
-    if(!leaveBalance) throw new NotFoundException(`No leave balance recourd for employee`)
+    if (!leaveBalance)
+      throw new NotFoundException(`No leave balance recourd for employee`);
 
-    const leaveDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const leaveDays =
+      Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+      ) + 1;
 
-    if(leaveType === 'regular' && leaveBalance.regularLeaveBalance < leaveDays) {
+    if (
+      leaveType === 'regular' &&
+      leaveBalance.regularLeaveBalance < leaveDays
+    ) {
       throw new Error('Not enough leave balance');
     }
 
     if (leaveType === 'sick' && leaveBalance.sickLeaveBalance < leaveDays) {
       throw new Error('Not enough sick leave balance');
     }
-    if (leaveType === 'special' && leaveBalance.specialLeaveBalance < leaveDays) {
+    if (
+      leaveType === 'special' &&
+      leaveBalance.specialLeaveBalance < leaveDays
+    ) {
       throw new Error('Not enough special leave balance');
     }
 
@@ -233,7 +237,7 @@ export class LeaveService {
       startDate,
       endDate,
       isCompleted: false,
-    })
+    });
 
     await this.leaveRepo.save(newLeave);
 

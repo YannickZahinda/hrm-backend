@@ -1,6 +1,6 @@
 ### Checking employee leave eligibility
 
-GET http://localhost:3000/leave/eligibility/1
+GET http://localhost:3000/leave/eligibility/2
 
 
 ### Initialize leave policies
@@ -13,10 +13,21 @@ Content-Type: application/json
 
 ### Initialize Employee leave history
 
-POST http://localhost:3000/leave/initialize-history/1
+POST http://localhost:3000/leave/initialize-history/2
 Content-Type: application/json
 
 {
     "lastLeaveEndDate":"2024-03-01",
     "initialBalance": 10
+}
+
+### Create a new leave
+
+POST http://localhost:3000/leave/new-leave 
+Content-Type: application/json
+
+{
+    "employeeId":1,
+    "leaveType":"regular",
+    "startDate":"2025-04-20"
 }

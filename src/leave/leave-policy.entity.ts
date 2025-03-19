@@ -6,7 +6,7 @@ export class LeavePolicy {
     id: number;
 
     @Column({type: 'text', default: 'CC2'})
-    employeCategory: 'CC2'| 'CC1'| 'M4'| 'MS'| 'SQ'| 'M1'| 'HQ'
+    employeCategory: 'CC2'| 'CC1'| 'M4'| 'MS'| 'SQ'| 'M1'| 'HQ';
 
     @Column({nullable: true})
     waitingPeriodMonths: number;

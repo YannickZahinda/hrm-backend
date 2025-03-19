@@ -9,7 +9,11 @@ Content-Type: application/json
     "department":"Information Technology",
     "salary":2300,
     "dateOfBirth":"2000-04-05",
-    "dateOfHire":"2025-03-26"
+    "dateOfHire":"2025-03-26",
+    "attendance":"present",
+    "category":"CC1",
+    "contractType":"CDI",
+    "noMatricule":"P004ER2352245I"
 }
 
 
@@ -24,12 +28,11 @@ GET http://localhost:3000/employees/all
 
 ### Updating an existing employee
 
-PATCH  http://localhost:3000/employees/1 
+PATCH  http://localhost:3000/employees/2 
 Content-Type: application/json
 
 {
-    "fullName":"Yannick Zahinda Mulikuza",
-    "salary":5000
+    "dateOfHire":"2020-02-21"
 }
 
 

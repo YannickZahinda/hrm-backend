@@ -42,4 +42,16 @@ export class LeaveController {
       data.initialBalance,
     );
   }
+
+  @Post('new-leave')
+  async applyForLeave(@Param('employeeId', ParseIntPipe) employeeId: number,
+    @Body() data: {leaveType: 'regular' | 'sick' | 'special'; startDate: Date; endDate: Date; isCompleted: boolean}
+  ) {
+    return this.leaveService.applyLeave(
+      employeeId,
+      data.leaveType,
+      data.startDate,
+      data.endDate
+      )
+  }
 }
