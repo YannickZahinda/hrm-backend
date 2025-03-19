@@ -17,6 +17,7 @@ export class LeaveService {
     private leavePolicyRepo: Repository<LeavePolicy>,
   ) {}
 
+  //this method determine when an employee can take leave and if they are eligible
   async getLeaveEligibility(employeeId: number) {
     const employee = await this.employeeRepo.findOne({
       where: { id: employeeId },
@@ -25,15 +26,19 @@ export class LeaveService {
       where: { employeCategory: employee?.category, isActive: true },
     });
 
-    if(!employee){
-      throw new NotFoundException(`Employee with ID${employeeId} was not found`)
+    if (!employee) {
+      throw new NotFoundException(
+        `Employee with ID${employeeId} was not found`,
+      );
     }
 
-    if(!policy){
-      throw new NotFoundException(`No active leave policy found for employee category: ${employee.category}`)
+    if (!policy) {
+      throw new NotFoundException(
+        `No active leave policy found for employee category: ${employee.category}`,
+      );
     }
 
-    //calculate hire date + waiting period
+    //calculating the eligible date adding hire date + waiting period
     const hireDate = employee?.dateOfHire
       ? new Date(employee?.dateOfHire)
       : null;
@@ -154,15 +159,15 @@ export class LeaveService {
     }
 
     const existingPolicy = await this.leavePolicyRepo.findOne({
-      where: {employeCategory: 'CC2', isActive: true}
+      where: { employeCategory: 'CC2', isActive: true },
     });
 
-    if(!existingPolicy){
+    if (!existingPolicy) {
       await this.leavePolicyRepo.save({
         employeeCategory: 'CC2',
         waitingPeriodMonths: 3,
         leaveDaysEntitled: 15,
-      })
+      });
     }
   }
 
@@ -174,21 +179,71 @@ export class LeaveService {
     //finding all employees becoming eligible for leave in the next 30 days
     const upcomingEligibility = await this.leaveBalanceRepo.find({
       where: {
-        nextEligibleLeaveBalance: Between(today, thirtyDaysLater)
+        nextEligibleLeaveBalance: Between(today, thirtyDaysLater),
       },
-      relations: ['employee']
+      relations: ['employee'],
     });
 
-    return upcomingEligibility.map(balance => {
+    return upcomingEligibility.map((balance) => {
       const daysUntilEligible = Math.ceil(
-        (balance.nextEligibleLeaveBalance.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        (balance.nextEligibleLeaveBalance.getTime() - today.getTime()) /
+          (1000 * 60 * 60 * 24),
       );
       return {
         employee: balance.employee,
         eligibleDate: balance.nextEligibleLeaveBalance,
-        daysUntilEligible
-      }
+        daysUntilEligible,
+      };
+    });
+  }
+
+  async applyLeave(
+    employeeId: number,
+    leaveType: 'regular' | 'sick' | 'special',
+    startDate: Date,
+    endDate: Date,
+  ) {
+    const employee = await this.employeeRepo.findOne({
+      where: { id: employeeId },
+    });
+    if (!employee)
+      throw new NotFoundException(`Employee with ID: ${employeeId} not found`);
+
+    const leaveBalance = await this.leaveBalanceRepo.findOne({
+      where: { employee: { id: employeeId } },
+    });
+    if(!leaveBalance) throw new NotFoundException(`No leave balance recourd for employee`)
+
+    const leaveDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    if(leaveType === 'regular' && leaveBalance.regularLeaveBalance < leaveDays) {
+      throw new Error('Not enough leave balance');
+    }
+
+    if (leaveType === 'sick' && leaveBalance.sickLeaveBalance < leaveDays) {
+      throw new Error('Not enough sick leave balance');
+    }
+    if (leaveType === 'special' && leaveBalance.specialLeaveBalance < leaveDays) {
+      throw new Error('Not enough special leave balance');
+    }
+
+    const newLeave = this.leaveRepo.create({
+      employee,
+      leaveType,
+      startDate,
+      endDate,
+      isCompleted: false,
     })
 
+    await this.leaveRepo.save(newLeave);
+
+    if (leaveType === 'regular') leaveBalance.regularLeaveBalance -= leaveDays;
+    if (leaveType === 'sick') leaveBalance.regularLeaveBalance -= leaveDays;
+    if (leaveType === 'special') leaveBalance.specialLeaveBalance -= leaveDays;
+
+    leaveBalance.lastLeaveEndDate = endDate;
+    await this.leaveBalanceRepo.save(leaveBalance);
+
+    return newLeave;
   }
 }

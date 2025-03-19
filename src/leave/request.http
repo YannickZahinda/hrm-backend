@@ -1,0 +1,22 @@
+### Checking employee leave eligibility
+
+GET http://localhost:3000/leave/eligibility/1
+
+
+### Initialize leave policies
+
+POST http://localhost:3000/leave/initialize-policies
+Content-Type: application/json
+
+{}
+
+
+### Initialize Employee leave history
+
+POST http://localhost:3000/leave/initialize-history/1
+Content-Type: application/json
+
+{
+    "lastLeaveEndDate":"2024-03-01",
+    "initialBalance": 10
+}

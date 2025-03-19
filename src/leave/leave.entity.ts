@@ -19,14 +19,14 @@ export class Leave {
   @Column({ default: false })
   isCompleted: boolean;
 
-  @Column({ nullable: true })
-  dateRequested: Date;
+  // @Column({ nullable: true })
+  // dateRequested: Date;
 
-  @Column({ nullable: true })
-  dateApproved: Date;
+  // @Column({ nullable: true })
+  // dateApproved: Date;
 
-  @Column({ nullable: true })
-  approvedBy: string;
+  // @Column({ nullable: true })
+  // approvedBy: string;
 
   @ManyToOne(() => Employee, (employee) => employee.leaves)
   employee: Employee;

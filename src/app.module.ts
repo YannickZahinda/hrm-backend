@@ -25,6 +25,7 @@ import { LeavePolicy } from './leave/leave-policy.entity';
     TypeOrmModule.forFeature([Employee, Document, Leave, LeaveBalance, LeavePolicy]),
     EmployeeModule,
     DocumentModule,
+    LeaveModule,
   ],
   controllers: [AppController],
   providers: [AppService],
