@@ -12,7 +12,7 @@ export class EmployeeService {
     ){}
 
     async findAll():Promise<Employee[]>{
-        return await this.employeeRepo.find({relations: ['documents', 'leaves']});
+        return await this.employeeRepo.find({relations: ['documents', 'leaves', 'leaveBalance']});
     }
 
     async findOne(id: number):Promise<Employee | null> {

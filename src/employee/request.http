@@ -4,16 +4,16 @@ POST http://localhost:3000/employees
 Content-Type: application/json
 
 {
-    "fullName":"Joh Doe",
-    "role":"Manager",
-    "department":"Information Technology",
-    "salary":2300,
-    "dateOfBirth":"2000-04-05",
-    "dateOfHire":"2025-03-26",
+    "fullName":"Esther Katula",
+    "role":"DIrectrice Financiere",
+    "department":"Finances",
+    "salary":1000,
+    "dateOfBirth":"2001-07-05",
+    "dateOfHire":"2025-01-01",
     "attendance":"present",
-    "category":"CC1",
+    "category":"CC2",
     "contractType":"CDI",
-    "noMatricule":"P004ER2352245I"
+    "noMatricule":"P074ER2350045I"
 }
 
 
@@ -28,17 +28,17 @@ GET http://localhost:3000/employees/all
 
 ### Updating an existing employee
 
-PATCH  http://localhost:3000/employees/2 
+PATCH  http://localhost:3000/employees/4
 Content-Type: application/json
 
 {
-    "dateOfHire":"2020-02-21"
+    "category":"HQ"
 }
 
 
 ### Finding one employee
 
-GET http://localhost:3000/employees/1
+GET http://localhost:3000/employees/4
 
 
 ### Deleting an employee

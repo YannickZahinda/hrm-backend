@@ -66,6 +66,7 @@ export class LeaveService {
     }
 
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const isEligible = eligibleDate ? today >= eligibleDate : false;
 
     return {
@@ -183,12 +184,15 @@ export class LeaveService {
         (balance.nextEligibleLeaveBalance.getTime() - today.getTime()) /
           (1000 * 60 * 60 * 24),
       );
+      console.log('Upcoming Eligibility:', upcomingEligibility);
+
       return {
         employee: balance.employee,
         eligibleDate: balance.nextEligibleLeaveBalance,
         daysUntilEligible,
       };
     });
+
   }
 
   async applyLeave(
@@ -207,7 +211,7 @@ export class LeaveService {
       where: { employee: { id: employeeId } },
     });
     if (!leaveBalance)
-      throw new NotFoundException(`No leave balance recourd for employee`);
+      throw new NotFoundException(`No leave balance record for employee`);
 
     const leaveDays =
       Math.ceil(
@@ -242,7 +246,7 @@ export class LeaveService {
     await this.leaveRepo.save(newLeave);
 
     if (leaveType === 'regular') leaveBalance.regularLeaveBalance -= leaveDays;
-    if (leaveType === 'sick') leaveBalance.regularLeaveBalance -= leaveDays;
+    if (leaveType === 'sick') leaveBalance.sickLeaveBalance -= leaveDays;
     if (leaveType === 'special') leaveBalance.specialLeaveBalance -= leaveDays;
 
     leaveBalance.lastLeaveEndDate = endDate;

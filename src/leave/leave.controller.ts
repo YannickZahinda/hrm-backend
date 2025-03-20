@@ -44,14 +44,14 @@ export class LeaveController {
   }
 
   @Post('new-leave')
-  async applyForLeave(@Param('employeeId', ParseIntPipe) employeeId: number,
-    @Body() data: {leaveType: 'regular' | 'sick' | 'special'; startDate: Date; endDate: Date; isCompleted: boolean}
+  async applyForLeave(
+    @Body() data: { employeeId: number; leaveType: 'regular' | 'sick' | 'special'; startDate: Date; endDate: Date; isCompleted: boolean}
   ) {
     return this.leaveService.applyLeave(
-      employeeId,
+      data.employeeId,
       data.leaveType,
-      data.startDate,
-      data.endDate
+      new Date(data.startDate),
+      new Date(data.endDate)
       )
   }
 }
