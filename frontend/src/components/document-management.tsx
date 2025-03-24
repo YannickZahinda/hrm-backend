@@ -162,10 +162,7 @@ export function DocumentManagement() {
                     <Input
                       id="dropzone-file"
                       type="file"
-                      className="hidden"
-                      onChange
-                      type="file"
-                      className="hidden"
+                      className="hidden"                 
                       onChange={handleFileChange}
                     />
                   </label>
