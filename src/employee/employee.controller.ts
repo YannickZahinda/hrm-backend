@@ -44,22 +44,22 @@ export class EmployeeController {
     return await this.employeeService.update(id, updateEmployeeDto);
   }
 
-  @Patch('/:id/attendance')
-  async updateAttendance(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateAttendanceDto: UpdateAttendanceDto
-  ) {
-    const updateEmployeeAttendance = await this.employeeService.updateAttendance(
-      id,
-      updateAttendanceDto.attendance
-    );
+  // @Patch('/:id/attendance')
+  // async updateAttendance(
+  //   @Param('id', ParseIntPipe) id: number,
+  //   @Body() updateAttendanceDto: UpdateAttendanceDto
+  // ) {
+  //   const updateEmployeeAttendance = await this.employeeService.updateAttendance(
+  //     id,
+  //     updateAttendanceDto.attendance
+  //   );
 
-    if (!updateEmployeeAttendance) {
-      throw new NotFoundException(`Employee with ID ${id} was not found`);
-    }
+  //   if (!updateEmployeeAttendance) {
+  //     throw new NotFoundException(`Employee with ID ${id} was not found`);
+  //   }
 
-    return updateEmployeeAttendance;
-  }
+  //   return updateEmployeeAttendance;
+  // }
 
   @Patch('/:id/contract-type')
   async updateContractType(
