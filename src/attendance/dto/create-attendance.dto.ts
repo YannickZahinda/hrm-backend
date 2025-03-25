@@ -1,7 +1,11 @@
-import { IsOptional, IsDate, IsInt, IsIn } from "class-validator";
+import { IsOptional, IsDate, IsInt, IsIn, IsNotEmpty } from "class-validator";
 import { Type } from "class-transformer";
 
 export class CreateAttendanceDto {
+    @IsInt()
+    @IsNotEmpty()
+    employeeId: number;
+
     @IsOptional()
     @IsDate()
     @Type(() => Date)
@@ -11,6 +15,5 @@ export class CreateAttendanceDto {
     @IsIn(['present', 'absent', 'onleave'])
     status?: string;
 
-    @IsInt()
-    employeeId: number
+
 }
