@@ -1,26 +1,12 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
-const { exec } = require('child_process');
+// const { exec } = require('child_process');
 const { stderr, stdout } = require('process');
 
 let mainWindow;
 
 if(process.env.NODE_ENV === "development") {
-  exec("npm run start", (err, stdout, stderr) => {
-    if(err) {
-      console.error(`Error starting backend: ${err}`);
-      return;
-    }
-    console.log(`Backend output: ${stdout}`);
-  });
-
-  exec("cd frontend && npm run dev", (err, stdout, stderr) => {
-    if(err) {
-      console.error(`Error starting the frontend: ${err}`);
-      return;
-    }
-    console.log(`Fronted Out: ${stdout}`)
-  })
+  console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
 }
 
 function createWindow() {

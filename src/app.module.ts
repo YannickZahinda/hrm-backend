@@ -12,6 +12,9 @@ import { LeaveModule } from './leave/leave.module';
 import { Leave } from './leave/leave.entity';
 import { LeaveBalance } from './leave/leave-balance.entity';
 import { LeavePolicy } from './leave/leave-policy.entity';
+import { AttendanceController } from './attendance/attendance.controller';
+import { AttendanceService } from './attendance/attendance.service';
+import { AttendanceModule } from './attendance/attendance.module';
 
 
 @Module({
@@ -26,8 +29,9 @@ import { LeavePolicy } from './leave/leave-policy.entity';
     EmployeeModule,
     DocumentModule,
     LeaveModule,
+    AttendanceModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, AttendanceController],
+  providers: [AppService, AttendanceService],
 })
 export class AppModule {}

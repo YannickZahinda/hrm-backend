@@ -25,7 +25,6 @@ export function LeaveManagement() {
   const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null)
   const [isEligibilityOpen, setIsEligibilityOpen] = useState(false)
 
-  // Mock employee data
   const employees = [
     {
       id: 1,

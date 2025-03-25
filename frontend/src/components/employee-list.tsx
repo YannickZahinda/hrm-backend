@@ -32,7 +32,6 @@ export function EmployeeList() {
   const [searchTerm, setSearchTerm] = useState("")
   const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false)
 
-  // Mock employee data based on the entity
   const employees = [
     {
       id: 1,
