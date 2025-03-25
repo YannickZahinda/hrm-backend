@@ -1,8 +1,15 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  Logger
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Attendance } from './attendance.entity';
 import { Employee } from 'src/employee/employee.entity';
+import { Cron } from '@nestjs/schedule';
+
 
 @Injectable()
 export class AttendanceService {
@@ -11,10 +18,11 @@ export class AttendanceService {
     private readonly attendanceRepo: Repository<Attendance>,
     @InjectRepository(Employee)
     private readonly employeeRepo: Repository<Employee>,
+    private readonly logger = new Logger(Attendance.name)
   ) {}
 
   async findAllAttendances(): Promise<Attendance[]> {
-    return await this.attendanceRepo.find({relations: ['employee']})
+    return await this.attendanceRepo.find({ relations: ['employee'] });
   }
 
   async createEmployeAttendance(
@@ -36,15 +44,52 @@ export class AttendanceService {
       where: { employee: { id: employeeId }, date },
     });
 
-    if(existingAttendanceRecord) {
-        throw new ConflictException(`Attendance for employee ${employeeId} on date ${date} already exists.`);
+    if (existingAttendanceRecord) {
+      throw new ConflictException(
+        `Attendance for employee ${employeeId} on date ${date} already exists.`,
+      );
     }
 
     const attendance = this.attendanceRepo.create({
-        employee, date, status,
+      employee,
+      date,
+      status,
     });
 
     return await this.attendanceRepo.save(attendance);
-
   }
+
+  @Cron('* * * * *')
+  async recordAttendanceAutomatically() {
+    console.log('Recording attendance for all employees...')
+    this.logger.log('Recording attendance for all employees...')
+
+    const employees = await this.employeeRepo.find();
+
+    if(employees.length === 0) {
+      console.warn('No employees found, Skipping attendance recording');
+      return;
+    }
+
+    const date = new Date();
+
+    for (const employee of employees) {
+      const existingRecord = await this.attendanceRepo.findOne({where: {employee: {id: employee.id}, date}});
+
+      if(!existingRecord) {
+        const attendanceRecord = await this.attendanceRepo.create({
+          employee, date, status: 'present'
+        });
+
+        await this.attendanceRepo.save(attendanceRecord);
+        console.log(`Recorded attendance for employee ID: ${employee.id}`);
+        this.logger.log(`Recorded attendance for employee ID: ${employee.id}`)
+      }else {
+        console.log(`Attendance already recorded for employee ID: ${employee.id} today`)
+        this.logger.log(`Attendance already recorded for employee ID: ${employee.id} today`)
+      }
+    }
+  }
+
+  
 }

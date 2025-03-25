@@ -16,6 +16,7 @@ import { AttendanceController } from './attendance/attendance.controller';
 import { AttendanceService } from './attendance/attendance.service';
 import { AttendanceModule } from './attendance/attendance.module';
 import { Attendance } from './attendance/attendance.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 
 @Module({
@@ -26,6 +27,7 @@ import { Attendance } from './attendance/attendance.entity';
       entities: [Employee, Document, Leave, LeaveBalance, LeavePolicy, Attendance],
       synchronize: true
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forFeature([Employee, Document, Leave, LeaveBalance, LeavePolicy, Attendance]),
     EmployeeModule,
     DocumentModule,
