@@ -1,10 +1,15 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 
 @Controller('attendance')
 export class AttendanceController {
     constructor(private readonly attendanceService: AttendanceService){}
+
+    @Get('all')
+    async findAll() {
+        return await this.attendanceService.findAllAttendances()
+    }
 
     @Post()
     recordAttendance(@Body() createAttendanceDto: CreateAttendanceDto){

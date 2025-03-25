@@ -27,6 +27,9 @@ export class Employee {
     @Column({type: 'date', default: () => 'CURRENT_DATE'})
     dateOfHire: Date;
 
+    @Column({type: 'varchar', length: 50, nullable: true})
+    sex: string
+
     // @Column({ type: 'text', default: 'present'})
     // attendance: 'present' | 'absent' | 'onleave';
 

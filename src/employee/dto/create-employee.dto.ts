@@ -21,4 +21,7 @@ export class CreateEmployeeDto {
 
     @IsDate()
     dateOfHire: Date;
+
+    @IsString()
+    sex: string
 }

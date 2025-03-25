@@ -12,11 +12,11 @@ export class EmployeeService {
     ){}
 
     async findAll():Promise<Employee[]>{
-        return await this.employeeRepo.find({relations: ['documents', 'leaves', 'leaveBalance']});
+        return await this.employeeRepo.find({relations: ['documents', 'leaves', 'leaveBalance', 'attendances']});
     }
 
     async findOne(id: number):Promise<Employee | null> {
-        return await this.employeeRepo.findOne({where: {id}, relations: ['documents', 'leaves']})
+        return await this.employeeRepo.findOne({where: {id}, relations: ['documents', 'leaves', 'leaveBalance', 'attendances']})
     }
 
     async create(createEmployeeDto: CreateEmployeeDto) {

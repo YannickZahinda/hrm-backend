@@ -13,6 +13,10 @@ export class AttendanceService {
     private readonly employeeRepo: Repository<Employee>,
   ) {}
 
+  async findAllAttendances(): Promise<Attendance[]> {
+    return await this.attendanceRepo.find({relations: ['employee']})
+  }
+
   async createEmployeAttendance(
     employeeId: number,
     date: Date,

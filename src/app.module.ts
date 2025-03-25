@@ -15,6 +15,7 @@ import { LeavePolicy } from './leave/leave-policy.entity';
 import { AttendanceController } from './attendance/attendance.controller';
 import { AttendanceService } from './attendance/attendance.service';
 import { AttendanceModule } from './attendance/attendance.module';
+import { Attendance } from './attendance/attendance.entity';
 
 
 @Module({
@@ -22,10 +23,10 @@ import { AttendanceModule } from './attendance/attendance.module';
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'database.sqlite',
-      entities: [Employee, Document, Leave, LeaveBalance, LeavePolicy],
+      entities: [Employee, Document, Leave, LeaveBalance, LeavePolicy, Attendance],
       synchronize: true
     }),
-    TypeOrmModule.forFeature([Employee, Document, Leave, LeaveBalance, LeavePolicy]),
+    TypeOrmModule.forFeature([Employee, Document, Leave, LeaveBalance, LeavePolicy, Attendance]),
     EmployeeModule,
     DocumentModule,
     LeaveModule,

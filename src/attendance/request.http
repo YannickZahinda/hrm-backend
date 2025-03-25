@@ -1,0 +1,14 @@
+### Creating an attendance record
+
+POST http://localhost:3000/attendance
+Content-Type: application/json
+
+{
+    "employeeId":1,
+    "date":"2025-03-24",
+    "status":"absent"
+}
+
+### Listing all attendances
+
+GET http://localhost:3000/attendance/all

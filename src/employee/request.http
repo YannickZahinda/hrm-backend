@@ -38,7 +38,7 @@ Content-Type: application/json
 
 ### Finding one employee
 
-GET http://localhost:3000/employees/4
+GET http://localhost:3000/employees/1
 
 
 ### Deleting an employee
