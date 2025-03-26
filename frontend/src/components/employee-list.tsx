@@ -49,6 +49,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { DateDisplay } from './DateDisplay';
 
 export function EmployeeList() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -63,9 +64,9 @@ export function EmployeeList() {
     dateOfBirth: '',
     dateOfHire: '',
     sex: 'unknow',
-    // category: '',
+    category: 'CC2',
     contractType: 'CDI',
-    noMatricule: '',
+    noMatricule: 'No Record',
   });
 
   useEffect(() => {
@@ -156,7 +157,7 @@ export function EmployeeList() {
       dateOfBirth: '',
       dateOfHire: '',
       sex: '',
-      // category: '',
+      category: 'CC1',
       contractType: 'CDI',
       noMatricule: '',
     });
@@ -294,11 +295,103 @@ export function EmployeeList() {
                   }
                 >
                   <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Select contract type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="CDI">CDI</SelectItem>
                     <SelectItem value="CDD">CDD</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label
+                    htmlFor="dateOfBirth"
+                    className="text-right flex items-center gap-1"
+                  >
+                    <Calendar className="h-4 w-4" />
+                    Date of Birth
+                  </Label>
+                  <div className="col-span-3">
+                    <Input
+                      id="dateOfBirth"
+                      type="date"
+                      value={
+                        newEmployee.dateOfBirth
+                          ? new Date(newEmployee.dateOfBirth)
+                              .toISOString()
+                              .split('T')[0]
+                          : ''
+                      }
+                      onChange={(e) => {
+                        setNewEmployee({
+                          ...newEmployee,
+                          dateOfBirth: e.target.value,
+                        });
+                      }}
+                      max={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label
+                      htmlFor="dateOfHire"
+                      className="text-right flex items-center gap-1"
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Date of Hire
+                    </Label>
+                    <div className="col-span-3">
+                      <Input
+                        id="dateOfHire"
+                        type="date"
+                        value={
+                          newEmployee.dateOfHire
+                            ? new Date(newEmployee.dateOfHire)
+                                .toISOString()
+                                .split('T')[0]
+                            : ''
+                        }
+                        onChange={(e) => {
+                          setNewEmployee({
+                            ...newEmployee,
+                            dateOfHire: e.target.value,
+                          });
+                        }}
+                        max={new Date().toISOString().split('T')[0]}
+                        min={
+                          newEmployee.dateOfBirth
+                            ? new Date(newEmployee.dateOfBirth)
+                                .toISOString()
+                                .split('T')[0]
+                            : undefined
+                        }
+                        className="[&::-webkit-calendar-picker-indicator]:opacity-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="category" className="text-right">
+                  Category
+                </Label>
+                <Select
+                  value={newEmployee.category}
+                  onValueChange={(
+                    value: 'CC2' | 'CC1' | 'M4' | 'MS' | 'SQ' | 'M1' | 'HQ',
+                  ) => setNewEmployee({ ...newEmployee, category: value })}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CC2">CC2</SelectItem>
+                    <SelectItem value="CC1">CC1</SelectItem>
+                    <SelectItem value="M4">M4</SelectItem>
+                    <SelectItem value="MS">MS</SelectItem>
+                    <SelectItem value="SQ">SQ</SelectItem>
+                    <SelectItem value="M1">M1</SelectItem>
+                    <SelectItem value="HQ">HQ</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -381,10 +474,14 @@ export function EmployeeList() {
             <TableRow>
               <TableHead>Employee</TableHead>
               <TableHead>Department</TableHead>
+              <TableHead>No Matricule</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Sex</TableHead>
               <TableHead>Contract</TableHead>
+              <TableHead>Salary</TableHead>
               <TableHead>Attendance</TableHead>
+              <TableHead>Date of hire</TableHead>
+              <TableHead>Date of birth</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -406,11 +503,13 @@ export function EmployeeList() {
                   </div>
                 </TableCell>
                 <TableCell>{employee.department}</TableCell>
+                <TableCell>{employee.noMatricule}</TableCell>
                 <TableCell>
                   <Badge variant="outline">{employee.category}</Badge>
                 </TableCell>
                 <TableCell>{employee.sex}</TableCell>
                 <TableCell>{employee.contractType}</TableCell>
+                <TableCell>{employee.salary}</TableCell>
                 <TableCell>
                   {(() => {
                     const latest = getLatestAttendance(employee);
@@ -437,12 +536,19 @@ export function EmployeeList() {
                     return (
                       <div className="flex items-center gap-2">
                         <Badge variant={variant}>
-                        {latest.status === 'none' ? 'No record' : latest.status}
-                      </Badge>
+                          {latest.status === 'none'
+                            ? 'No record'
+                            : latest.status}
+                        </Badge>
                       </div>
-                      
                     );
                   })()}
+                </TableCell>
+                <TableCell>
+                  <DateDisplay date={employee.dateOfBirth} />
+                </TableCell>
+                <TableCell>
+                  <DateDisplay date={employee.dateOfHire} />
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>

@@ -4,12 +4,11 @@ export interface Employee {
   role: string;
   department: string;
   salary: number;
-  dateOfBirth: string;
-  dateOfHire: string;
-  // attendance: 'present' | 'absent' | 'onleave';
-  category: string;
+  dateOfBirth: Date | string;
+  dateOfHire: Date | string;
   sex?: string;
   contractType: 'CDI' | 'CDD';
+  category: 'CC2' | 'CC1' | 'M4' | 'MS' | 'SQ' | 'M1' | 'HQ';
   noMatricule: string;
   initials?: string;
   attendances?: {
@@ -26,8 +25,7 @@ export interface CreateEmployeeDto {
   salary: number;
   dateOfBirth: string;
   dateOfHire: string;
-//   attendance: 'present' | 'absent' | 'onleave';
-  // category: string;
+  category: 'CC2' | 'CC1' | 'M4' | 'MS' | 'SQ' | 'M1' | 'HQ';
   sex: string;
   contractType: 'CDI' | 'CDD';
   noMatricule: string;
