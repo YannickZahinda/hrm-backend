@@ -27,6 +27,19 @@ export interface CreateEmployeeDto {
   noMatricule: string;
 }
 
+export interface Attendance {
+  id?: number;
+  employeeId: string;
+  date?: Date;
+  status?: 'present'| 'absent'| 'onleave'
+}
+
+export interface CreateAttendanceDto {
+  employeeId: string;
+  date?: Date;
+  status?: 'present'| 'absent'| 'onleave';
+}
+
 export interface UpdateEmployeeDto {
   fullName?: string;
   role?: string;
