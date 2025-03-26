@@ -12,6 +12,11 @@ export interface Employee {
   contractType: 'CDI' | 'CDD';
   noMatricule: string;
   initials?: string;
+  attendances?: {
+    id: number;
+    date: string;
+    status: 'present ' | 'absent' | 'onleave'
+  }[];
 }
 
 export interface CreateEmployeeDto {
@@ -22,7 +27,8 @@ export interface CreateEmployeeDto {
   dateOfBirth: string;
   dateOfHire: string;
 //   attendance: 'present' | 'absent' | 'onleave';
-  category: string;
+  // category: string;
+  sex: string;
   contractType: 'CDI' | 'CDD';
   noMatricule: string;
 }

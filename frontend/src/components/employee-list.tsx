@@ -62,21 +62,22 @@ export function EmployeeList() {
     salary: 0,
     dateOfBirth: '',
     dateOfHire: '',
-    category: '',
+    sex: 'unknow',
+    // category: '',
     contractType: 'CDI',
     noMatricule: '',
   });
 
   useEffect(() => {
     fetchEmployees();
+    console.log('orginal state employees::::::', employees);
   }, []);
 
   const fetchEmployees = async () => {
     try {
       setIsLoading(true);
-      console.log('Fetching employees...');
       const fetchedEmployees = await EmployeeService.getAllEmployees();
-      console.log('Received data: ', fetchEmployees)
+      console.log('Received data: ', fetchedEmployees);
       setEmployees(fetchedEmployees);
     } catch (error) {
       console.error('Error details: ', error);
@@ -91,9 +92,8 @@ export function EmployeeList() {
   };
 
   if (isLoading) {
-    return <div>Loading......</div>
-}
-
+    return <div>Loading......</div>;
+  }
 
   // const handleInputChange = (field: keyof CreateEmployeeDto, value: any) => {
   //   setNewEmployee((prev) => ({ ...prev, [field]: value }));
@@ -155,10 +155,28 @@ export function EmployeeList() {
       salary: 0,
       dateOfBirth: '',
       dateOfHire: '',
-      category: '',
+      sex: '',
+      // category: '',
       contractType: 'CDI',
       noMatricule: '',
     });
+  };
+
+  const getLatestAttendance = (employee: Employee) => {
+    if (!employee.attendances || employee.attendances.length === 0) {
+      return { status: 'none', date: null };
+    }
+
+    const sortedAttendances = [...employee.attendances].sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return dateB - dateA;
+    });
+
+    return {
+      status: sortedAttendances[0].status,
+      date: sortedAttendances[0].date,
+    };
   };
 
   const filteredEmployees = employees.filter(
@@ -193,17 +211,48 @@ export function EmployeeList() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <Label htmlFor="fullName" className="text-right">
-                Full Name
-              </Label>
-              <Input
-                id="fullName"
-                className="col-span-3"
-                value={newEmployee.fullName}
-                onChange={(e) =>
-                  setNewEmployee({ ...newEmployee, fullName: e.target.value })
-                }
-              />
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="fullName" className="text-right">
+                  Full Name
+                </Label>
+                <Input
+                  id="fullName"
+                  className="col-span-3"
+                  value={newEmployee.fullName}
+                  onChange={(e) =>
+                    setNewEmployee({ ...newEmployee, fullName: e.target.value })
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="role" className="text-right">
+                  Role
+                </Label>
+                <Input
+                  id="role"
+                  className="col-span-3"
+                  value={newEmployee.role}
+                  onChange={(e) =>
+                    setNewEmployee({ ...newEmployee, role: e.target.value })
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="department" className="text-right">
+                  Department
+                </Label>
+                <Input
+                  id="department"
+                  className="col-span-3"
+                  value={newEmployee.department}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      department: e.target.value,
+                    })
+                  }
+                />
+              </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="salary" className="text-right">
                   Salary
@@ -220,21 +269,54 @@ export function EmployeeList() {
                     })
                   }
                 />
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor='contractType' className='text-right'>
-                    Contract Type
-                  </Label>
-                  <Select value={newEmployee.contractType} onValueChange={(value: 'CDI' | 'CDD') => setNewEmployee({...newEmployee, contractType: value})}>
-                    <SelectTrigger className='col-span-3'>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='CDI'>CDI</SelectItem>
-                      <SelectItem value='CDD'>CDD</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="sex" className="text-right">
+                  sex
+                </Label>
+                <Input
+                  id="sex"
+                  className="col-span-3"
+                  value={newEmployee.sex}
+                  onChange={(e) =>
+                    setNewEmployee({ ...newEmployee, sex: e.target.value })
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="contractType" className="text-right">
+                  Contract Type
+                </Label>
+                <Select
+                  value={newEmployee.contractType}
+                  onValueChange={(value: 'CDI' | 'CDD') =>
+                    setNewEmployee({ ...newEmployee, contractType: value })
+                  }
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CDI">CDI</SelectItem>
+                    <SelectItem value="CDD">CDD</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="noMatricule" className="text-right">
+                  No Matricule
+                </Label>
+                <Input
+                  id="noMatricule"
+                  className="col-span-3"
+                  value={newEmployee.noMatricule}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      noMatricule: e.target.value,
+                    })
+                  }
+                />
               </div>
             </div>
             <DialogFooter>
@@ -329,6 +411,39 @@ export function EmployeeList() {
                 </TableCell>
                 <TableCell>{employee.sex}</TableCell>
                 <TableCell>{employee.contractType}</TableCell>
+                <TableCell>
+                  {(() => {
+                    const latest = getLatestAttendance(employee);
+                    let variant:
+                      | 'default'
+                      | 'destructive'
+                      | 'outline'
+                      | 'secondary';
+
+                    switch (latest.status) {
+                      case 'present':
+                        variant = 'default';
+                        break;
+                      case 'absent':
+                        variant = 'destructive';
+                        break;
+                      case 'onleave':
+                        variant = 'secondary';
+                        break;
+                      default:
+                        variant = 'outline';
+                    }
+
+                    return (
+                      <div className="flex items-center gap-2">
+                        <Badge variant={variant}>
+                        {latest.status === 'none' ? 'No record' : latest.status}
+                      </Badge>
+                      </div>
+                      
+                    );
+                  })()}
+                </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
