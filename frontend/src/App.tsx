@@ -1,5 +1,5 @@
 import './App.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dashboard } from './components/dashboard'
 import { Sidebar } from './components/sidebar'
 import { EmployeeList } from './components/employee-list'
@@ -9,6 +9,18 @@ import { Settings } from './components/settings'
 
 function App() {
   const [activeView, setActiveView] = useState("dashboard");
+
+  useEffect(() => {
+    console.log('App mounted - checking environment:')
+    console.log('NODE_ENV:', process.env.NODE_ENV)
+    console.log('API_BASE_URL:', process.env.API_BASE_URL)
+    
+    // Test API connection
+    fetch('http://localhost:3000/employees/all')
+      .then(res => res.json())
+      .then(data => console.log('API test response:', data))
+      .catch(err => console.error('API test error:', err))
+  }, [])
 
   const renderContent = () => {
     switch (activeView) {

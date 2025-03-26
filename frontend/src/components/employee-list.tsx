@@ -1,11 +1,18 @@
-"use client"
+import { Badge } from '@/components/ui/badge';
 
-import { Badge } from "@/components/ui/badge"
-
-import { useState } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from 'react';
+import { EmployeeService } from '@/services/employee-api-service';
+import { CreateEmployeeDto, Employee } from '@/types/types';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +20,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
@@ -22,93 +29,138 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, Plus, MoreHorizontal, Edit, Trash, FileText, Calendar } from "lucide-react"
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Search,
+  Plus,
+  MoreHorizontal,
+  Edit,
+  Trash,
+  FileText,
+  Calendar,
+} from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { response } from 'express';
 
 export function EmployeeList() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('');
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [newEmployee, setNewEmployee] = useState<CreateEmployeeDto>({
+    fullName: '',
+    role: '',
+    department: '',
+    salary: 0,
+    dateOfBirth: '',
+    dateOfHire: '',
+    category: '',
+    contractType: 'CDI',
+    noMatricule: '',
+  });
 
-  const employees = [
-    {
-      id: 1,
-      fullName: "Mohammed Ali",
-      role: "Software Developer",
-      department: "Engineering",
-      salary: 45000,
-      dateOfBirth: "1990-05-15",
-      dateOfHire: "2022-01-15",
-      attendance: "present",
-      category: "CC2",
-      contractType: "CDI",
-      noMatricule: "EMP001",
-      avatar: "/placeholder.svg?height=40&width=40",
-      initials: "MA",
-    },
-    {
-      id: 2,
-      fullName: "Fatima Zahra",
-      role: "Marketing Specialist",
-      department: "Marketing",
-      salary: 42000,
-      dateOfBirth: "1992-03-10",
-      dateOfHire: "2021-03-10",
-      attendance: "onleave",
-      category: "CC1",
-      contractType: "CDI",
-      noMatricule: "EMP002",
-      avatar: "/placeholder.svg?height=40&width=40",
-      initials: "FZ",
-    },
-    {
-      id: 3,
-      fullName: "Omar Hassan",
-      role: "Financial Analyst",
-      department: "Finance",
-      salary: 50000,
-      dateOfBirth: "1988-11-05",
-      dateOfHire: "2023-11-05",
-      attendance: "present",
-      category: "M4",
-      contractType: "CDI",
-      noMatricule: "EMP003",
-      avatar: "/placeholder.svg?height=40&width=40",
-      initials: "OH",
-    },
-    {
-      id: 4,
-      fullName: "Layla Mansour",
-      role: "HR Specialist",
-      department: "Human Resources",
-      salary: 48000,
-      dateOfBirth: "1991-07-20",
-      dateOfHire: "2022-07-20",
-      attendance: "present",
-      category: "MS",
-      contractType: "CDI",
-      noMatricule: "EMP004",
-      avatar: "/placeholder.svg?height=40&width=40",
-      initials: "LM",
-    },
-    {
-      id: 5,
-      fullName: "Ahmed Khalid",
-      role: "Sales Representative",
-      department: "Sales",
-      salary: 40000,
-      dateOfBirth: "1993-02-08",
-      dateOfHire: "2023-02-08",
-      attendance: "absent",
-      category: "SQ",
-      contractType: "CDD",
-      noMatricule: "EMP005",
-      avatar: "/placeholder.svg?height=40&width=40",
-      initials: "AK",
-    },
-  ]
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async () => {
+    try {
+      setIsLoading(true);
+      console.log('Fetching employees...');
+      const fetchedEmployees = await EmployeeService.getAllEmployees();
+      console.log('Received data: ', fetchEmployees)
+      setEmployees(fetchedEmployees);
+    } catch (error) {
+      console.error('Error details: ', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch employees',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading......</div>
+}
+
+
+  // const handleInputChange = (field: keyof CreateEmployeeDto, value: any) => {
+  //   setNewEmployee((prev) => ({ ...prev, [field]: value }));
+  // };
+
+  const handleCreateEmployee = async () => {
+    if (
+      !newEmployee.fullName ||
+      !newEmployee.noMatricule ||
+      !newEmployee.dateOfHire
+    ) {
+      toast({
+        title: 'Error',
+        description: 'Full name, matricule and date of hire are required',
+        variant: 'destructive',
+      });
+    }
+
+    try {
+      const createdEmployee = await EmployeeService.createEmployee(newEmployee);
+      setEmployees([...employees, createdEmployee]);
+      setIsAddEmployeeOpen(false);
+      resetForm();
+      toast({
+        title: 'Success',
+        description: 'Employee created successfully',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to create employee',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteEmployee = async (id: number) => {
+    try {
+      await EmployeeService.deleteEmployee(id);
+      setEmployees(employees.filter((emp) => emp.id !== id));
+      toast({
+        title: 'Success',
+        description: 'Employee deleted successfully',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete employee',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const resetForm = () => {
+    setNewEmployee({
+      fullName: '',
+      role: '',
+      department: '',
+      salary: 0,
+      dateOfBirth: '',
+      dateOfHire: '',
+      category: '',
+      contractType: 'CDI',
+      noMatricule: '',
+    });
+  };
 
   const filteredEmployees = employees.filter(
     (employee) =>
@@ -117,7 +169,7 @@ export function EmployeeList() {
       employee.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.contractType.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  );
 
   return (
     <div className="space-y-6">
@@ -136,90 +188,64 @@ export function EmployeeList() {
           <DialogContent className="sm:max-w-[525px]">
             <DialogHeader>
               <DialogTitle>Add New Employee</DialogTitle>
-              <DialogDescription>Enter the details of the new employee. Click save when you're done.</DialogDescription>
+              <DialogDescription>
+                Enter the details of the new employee. Click save when you're
+                done.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="fullName" className="text-right">
-                  Full Name
-                </Label>
-                <Input id="fullName" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="role" className="text-right">
-                  Role
-                </Label>
-                <Input id="role" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="department" className="text-right">
-                  Department
-                </Label>
-                <Input id="department" className="col-span-3" />
-              </div>
+              <Label htmlFor="fullName" className="text-right">
+                Full Name
+              </Label>
+              <Input
+                id="fullName"
+                className="col-span-3"
+                value={newEmployee.fullName}
+                onChange={(e) =>
+                  setNewEmployee({ ...newEmployee, fullName: e.target.value })
+                }
+              />
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="salary" className="text-right">
                   Salary
                 </Label>
-                <Input id="salary" type="number" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="dateOfBirth" className="text-right">
-                  Date of Birth
-                </Label>
-                <Input id="dateOfBirth" type="date" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="dateOfHire" className="text-right">
-                  Date of Hire
-                </Label>
-                <Input id="dateOfHire" type="date" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="category" className="text-right">
-                  Category
-                </Label>
-                <Select>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="CC2">CC2</SelectItem>
-                    <SelectItem value="CC1">CC1</SelectItem>
-                    <SelectItem value="M4">M4</SelectItem>
-                    <SelectItem value="MS">MS</SelectItem>
-                    <SelectItem value="SQ">SQ</SelectItem>
-                    <SelectItem value="M1">M1</SelectItem>
-                    <SelectItem value="HQ">HQ</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="contractType" className="text-right">
-                  Contract Type
-                </Label>
-                <Select>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select contract type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="CDI">CDI</SelectItem>
-                    <SelectItem value="CDD">CDD</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="noMatricule" className="text-right">
-                  Matricule No.
-                </Label>
-                <Input id="noMatricule" className="col-span-3" />
+                <Input
+                  id="salary"
+                  type="number"
+                  className="col-span-3"
+                  value={newEmployee.salary}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      salary: Number(e.target.value),
+                    })
+                  }
+                />
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor='contractType' className='text-right'>
+                    Contract Type
+                  </Label>
+                  <Select value={newEmployee.contractType} onValueChange={(value: 'CDI' | 'CDD') => setNewEmployee({...newEmployee, contractType: value})}>
+                    <SelectTrigger className='col-span-3'>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='CDI'>CDI</SelectItem>
+                      <SelectItem value='CDD'>CDD</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddEmployeeOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsAddEmployeeOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button type="submit" onClick={() => setIsAddEmployeeOpen(false)}>
+              <Button type="submit" onClick={handleCreateEmployee}>
                 Save Employee
               </Button>
             </DialogFooter>
@@ -275,6 +301,7 @@ export function EmployeeList() {
               <TableHead>Employee</TableHead>
               <TableHead>Department</TableHead>
               <TableHead>Category</TableHead>
+              <TableHead>Sex</TableHead>
               <TableHead>Contract</TableHead>
               <TableHead>Attendance</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -286,12 +313,14 @@ export function EmployeeList() {
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar>
-                      <AvatarImage src={employee.avatar} alt={employee.fullName} />
+                      <AvatarImage src="" alt="" />
                       <AvatarFallback>{employee.initials}</AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium">{employee.fullName}</p>
-                      <p className="text-sm text-muted-foreground">{employee.role}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {employee.role}
+                      </p>
                     </div>
                   </div>
                 </TableCell>
@@ -299,20 +328,8 @@ export function EmployeeList() {
                 <TableCell>
                   <Badge variant="outline">{employee.category}</Badge>
                 </TableCell>
+                <TableCell>{employee.sex}</TableCell>
                 <TableCell>{employee.contractType}</TableCell>
-                <TableCell>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      employee.attendance === "present"
-                        ? "bg-green-100 text-green-800"
-                        : employee.attendance === "onleave"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {employee.attendance}
-                  </span>
-                </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -336,7 +353,12 @@ export function EmployeeList() {
                         Manage Leaves
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">
+                      <DropdownMenuItem
+                        className="text-red-600"
+                        onClick={() =>
+                          employee.id && handleDeleteEmployee(employee.id)
+                        }
+                      >
                         <Trash className="mr-2 h-4 w-4" />
                         Delete Employee
                       </DropdownMenuItem>
@@ -349,6 +371,5 @@ export function EmployeeList() {
         </Table>
       </div>
     </div>
-  )
+  );
 }
-
