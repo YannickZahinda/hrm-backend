@@ -35,6 +35,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     AttendanceModule,
   ],
   controllers: [AppController, AttendanceController],
-  providers: [AppService, AttendanceService],
+  providers: [AppService],
 })
 export class AppModule {}

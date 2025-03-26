@@ -8,17 +8,18 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Attendance } from './attendance.entity';
 import { Employee } from 'src/employee/employee.entity';
-import { Cron } from '@nestjs/schedule';
+import { Cron, SchedulerRegistry } from '@nestjs/schedule';
 
 
 @Injectable()
 export class AttendanceService {
+  private readonly logger = new Logger(Attendance.name);
+
   constructor(
     @InjectRepository(Attendance)
     private readonly attendanceRepo: Repository<Attendance>,
     @InjectRepository(Employee)
     private readonly employeeRepo: Repository<Employee>,
-    private readonly logger = new Logger(Attendance.name)
   ) {}
 
   async findAllAttendances(): Promise<Attendance[]> {
@@ -59,7 +60,7 @@ export class AttendanceService {
     return await this.attendanceRepo.save(attendance);
   }
 
-  @Cron('* * * * *')
+  @Cron('0 6 * * *')
   async recordAttendanceAutomatically() {
     console.log('Recording attendance for all employees...')
     this.logger.log('Recording attendance for all employees...')

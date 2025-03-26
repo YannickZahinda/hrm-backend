@@ -8,6 +8,7 @@ import { Employee } from 'src/employee/employee.entity';
 @Module({
     imports:[ TypeOrmModule.forFeature([Attendance, Employee])],
     providers: [AttendanceService],
-    controllers: [AttendanceController]
+    controllers: [AttendanceController],
+    exports: [AttendanceService]
 })
 export class AttendanceModule {}
