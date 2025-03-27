@@ -57,7 +57,6 @@ const EmployeeTable = ({ employees, onDelete }: EmployeeTableProps) => {
           <TableHead>Contract</TableHead>
           <TableHead>Salary</TableHead>
           <TableHead>Attendance</TableHead>
-          <TableHead>Employee</TableHead>
           <TableHead>Date of hire</TableHead>
           <TableHead>Date of birth</TableHead>
           <TableHead className="text-right">Actions</TableHead>
