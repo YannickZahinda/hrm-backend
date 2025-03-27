@@ -6,6 +6,7 @@ import { EmployeeList } from './components/employee-list'
 import { LeaveManagement } from './components/leave-management'
 import { DocumentManagement } from './components/document-management'
 import { Settings } from './components/settings'
+import Footer from './components/Footer'
 
 function App() {
   const [activeView, setActiveView] = useState("dashboard");
@@ -47,6 +48,7 @@ function App() {
         {renderContent()}
        </main>
       </div>
+      <Footer />
     </>
   )
 }
