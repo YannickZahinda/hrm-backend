@@ -56,6 +56,25 @@ export interface Attendance {
   status?: 'present'| 'absent'| 'onleave'
 }
 
+export interface Leave {
+  id?: number;
+  leaveType?: 'regular' | 'sick' | 'special';
+  startDate: Date;
+  endDate: Date;
+  isCompleted: boolean;
+  employee?: {
+    id?: number;
+    fullName: string;
+    role: string;
+    department: string;
+    salary: number;
+    dateOfBirth: Date;
+    dateOfHire: Date;
+    category: 'CC2' | 'CC1' | 'M4' | 'MS' | 'SQ' | 'M1' | 'HQ';
+    contractType: 'CDI' | 'CDD';
+  }
+}
+
 export interface CreateAttendanceDto {
   employeeId: string;
   date?: Date;
