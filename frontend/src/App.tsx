@@ -8,10 +8,12 @@ import { DocumentManagement } from './components/document-management'
 import { Settings } from './components/settings'
 import Footer from './components/Footer'
 import EmployeeEdit from './components/employees/Employee-edit'
+import { Employee } from './types/types'
 
 function App() {
   const [activeView, setActiveView] = useState("dashboard");
   const [editEmployeeId, setEditEmployeeId] = useState<number | null>(null)
+  const [employee, setEmployee] = useState<Employee |null>(null)
 
   const renderContent = () => {
     switch (activeView) {
@@ -20,7 +22,7 @@ function App() {
       case "employees": 
         return <EmployeeList setActiveView={setActiveView} setEditEmployeeId={setEditEmployeeId} />
       case "leaves":
-        return <LeaveManagement />
+        return <LeaveManagement employeeId={employee?.id} />
       case "documents": 
         return <DocumentManagement />
       case "settings":

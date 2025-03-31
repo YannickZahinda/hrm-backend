@@ -33,21 +33,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EmployeeService } from '@/services/employee-api-service';
 import { AttendanceService } from '@/services/attendance-api-service';
-import { Leave } from '@/types/types';
+import { Leave, LeaveEligibilityResponse } from '@/types/types';
 import { toast } from '@/hooks/use-toast';
 import { LeaveService } from '@/services/leaves-api-service';
+import { Value } from '@radix-ui/react-select';
 
-export function LeaveManagement() {
+interface LeaveManagementProps {
+  employeeId?: number;
+}
+
+export function LeaveManagement({ employeeId }: LeaveManagementProps) {
   const [isAddLeaveOpen, setIsAddLeaveOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [leaves, setLeaves] = useState<Leave[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
   const [isEligibilityOpen, setIsEligibilityOpen] = useState(false);
+  const [eligibility, setEligibility] =
+    useState<LeaveEligibilityResponse | null>(null);
+  const [isEligibilityLoading, setIsEligibilityLoading] = useState(false);
+  const [eligibilityError, setEligibilityError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchLeave();
-  }, []);
+    if (employeeId && typeof employeeId === 'number') {
+      fetchEligibility(employeeId);
+    } else {
+      console.error('Invalid employeeId: ', employeeId);
+    }
+  }, [employeeId]);
 
   const fetchLeave = async () => {
     try {
@@ -59,6 +73,23 @@ export function LeaveManagement() {
         title: 'Error',
         description: 'Failed to fetch attendance',
         variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchEligibility = async (employeeId: number) => {
+    try {
+      setIsLoading(true);
+      const fetchedEligibilityData =
+        await LeaveService.getEligibility(employeeId);
+      setEligibility(fetchedEligibilityData);
+    } catch (error) {
+      console.error('Failed to fetch eligibility: ', 'error');
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch eligibility',
       });
     } finally {
       setIsLoading(false);
@@ -77,12 +108,6 @@ export function LeaveManagement() {
   });
 
   // Mock leave eligibility data
-  const eligibilityData = {
-    balance: 22,
-    used: 8,
-    remaining: 14,
-    nextAccrual: '2025-04-01',
-  };
 
   return (
     <div className="space-y-6">
@@ -101,19 +126,36 @@ export function LeaveManagement() {
                 Check Eligibility
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[525px]">
+            <DialogContent className="sm:max-w-[700px]">
               <DialogHeader>
                 <DialogTitle>Leave Eligibility</DialogTitle>
                 <DialogDescription>
                   Check leave eligibility for an employee
                 </DialogDescription>
               </DialogHeader>
+              
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="eligibilityEmployee" className="text-right">
                     Employee
                   </Label>
-                  <Select>
+                  <Select onValueChange={async (value) => {
+                    const employeeId = parseInt(value, 10);
+                    try {
+                      setIsLoading(true);
+                      setEligibilityError(null);
+                      const data = await LeaveService.getEligibility(employeeId);
+                      setEligibility(data)
+                      
+                    } catch (error) {
+                      setEligibilityError('Failed to fetch eligibility data');
+                      console.log(error);
+                      
+                    }finally {
+                      setIsEligibilityLoading(false)
+                    }
+                    if(isEligibilityLoading) return <div>Loading eligibility....</div>
+                  }}>
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
@@ -134,47 +176,148 @@ export function LeaveManagement() {
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div className="mt-4 space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm">Total Balance</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">
-                          {eligibilityData.balance} days
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm">Used</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">
-                          {eligibilityData.used} days
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm">
-                        Remaining Balance
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">
-                        {eligibilityData.remaining} days
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Next accrual on {eligibilityData.nextAccrual}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
               </div>
+
+              <div className="mt-4 space-y-4">
+                {eligibility && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm">
+                            Total Entitled
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">
+                            {eligibility.policy.leaveDaysEntitle} days
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Policy: {eligibility.policy.employeCategory}
+                          </p>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm">
+                            Available Balance
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">
+                            {eligibility.balance.regularLeaveBalance} days
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Sick: {eligibility.balance.sickLeaveBalance} |
+                            Special: {eligibility.balance.specialLeaveBalance}
+                          </p>
+                        </CardContent>
+                      </Card>
+
+                      <Card
+                        className={
+                          eligibility.isEligible
+                            ? 'border-green-200'
+                            : 'border-orange-200'
+                        }
+                      >
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm">
+                            Eligibility Status
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold flex items-center gap-2">
+                            {eligibility.isEligible ? (
+                              <span className="text-green-600">Eligible</span>
+                            ) : (
+                              <span className="text-orange-600">
+                                Not Eligible
+                              </span>
+                            )}
+                          </div>
+                          {!eligibility.isEligible && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Eligible in {eligibility.daysUntilEligible} days
+                            </p>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm">
+                            Waiting Period
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">
+                            {eligibility.policy.waitingPeriodMonths} months
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Hired:{' '}
+                            {new Date(
+                              eligibility.employee.dateOfHire,
+                            ).toLocaleDateString()}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm">
+                            Next Eligibility Date
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">
+                            {eligibility.balance.nextEligibleLeaveBalance
+                              ? new Date(
+                                  eligibility.balance.nextEligibleLeaveBalance,
+                                ).toLocaleDateString()
+                              : 'N/A'}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Last leave ended:{' '}
+                            {eligibility.balance.lastLeaveEndDate
+                              ? new Date(
+                                  eligibility.balance.lastLeaveEndDate,
+                                ).toLocaleDateString()
+                              : 'No leaves taken'}
+                          </p>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm">
+                            Employee Info
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-1">
+                            <p className="font-medium">
+                              {eligibility.employee.fullName}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {eligibility.employee.role} •{' '}
+                              {eligibility.employee.department}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Contract: {eligibility.employee.contractType} •{' '}
+                              {eligibility.employee.category}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+              </div>
+     
               <DialogFooter>
                 <Button onClick={() => setIsEligibilityOpen(false)}>
                   Close
@@ -442,23 +585,23 @@ export function LeaveManagement() {
                 {filteredLeaves
                   .filter((leave) => !leave.isCompleted)
                   .map((leave) => {
-                    if(!leave || !leave.employee) return false;
+                    if (!leave || !leave.employee) return false;
 
                     const getInitials = (name: string) => {
                       const names = name.split('');
                       let initials = name[0].substring(0, 1).toUpperCase();
-  
+
                       if (name.length > 1) {
                         initials += names[names.length - 1]
                           .substring(0, 1)
                           .toUpperCase();
                       }
-  
+
                       return initials;
                     };
                     const initials = getInitials(leave.employee.fullName);
 
-                    if(!leave || !leave.employee) return false;
+                    if (!leave || !leave.employee) return false;
                     return (
                       <TableRow key={leave.id}>
                         <TableCell>
@@ -562,13 +705,13 @@ export function LeaveManagement() {
                     const getInitials = (name: string) => {
                       const names = name.split('');
                       let initials = name[0].substring(0, 1).toUpperCase();
-  
+
                       if (name.length > 1) {
                         initials += names[names.length - 1]
                           .substring(0, 1)
                           .toUpperCase();
                       }
-  
+
                       return initials;
                     };
                     const initials = getInitials(leave.employee.fullName);

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Leave } from '@/types/types';
+import { Leave, LeaveEligibilityResponse } from '@/types/types';
 
 const API_BASE_URL =
   process.env.NODE_ENV === 'development'
@@ -15,6 +15,23 @@ export const LeaveService = {
         } catch (error) {
             console.error('Error fetching leaves: ', error)
             throw error;
+        }
+    },
+
+    async getEligibility(employeeId: number) {
+        try {
+            const response = await axios.get<LeaveEligibilityResponse>(`${API_BASE_URL}/eligibility/${employeeId}`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async applyLeave() {
+        try {
+            
+        } catch (error) {
+            
         }
     }
 }

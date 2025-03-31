@@ -75,6 +75,38 @@ export interface Leave {
   }
 }
 
+export interface LeaveEligibilityResponse {
+  employee: {
+    id?: number;
+    fullName: string;
+    role: string;
+    department: string;
+    salary: number;
+    dateOfBirth: Date;
+    dateOfHire: Date;
+    category: 'CC2' | 'CC1' | 'M4' | 'MS' | 'SQ' | 'M1' | 'HQ';
+    contractType: 'CDI' | 'CDD';
+  };
+  policy: {
+    id: number;
+    employeCategory: string;
+    waitingPeriodMonths: number;
+    leaveDaysEntitle: number;
+    isActive: boolean;
+    effectiveDate: Date;
+  };
+  balance: {
+    id: number;
+    regularLeaveBalance: number;
+    sickLeaveBalance:  number;
+    specialLeaveBalance: number;
+    lastLeaveEndDate: Date;
+    nextEligibleLeaveBalance: Date;
+  };
+  isEligible: true,
+  daysUntilEligible: number;
+}
+
 export interface CreateAttendanceDto {
   employeeId: string;
   date?: Date;
