@@ -1,24 +1,42 @@
-export interface Employee {
+export interface EmployeeBase {
   id?: number;
   fullName: string;
   role: string;
   department: string;
   salary: number;
-  dateOfBirth: Date | string;
-  dateOfHire: Date | string;
   sex?: string;
   contractType: 'CDI' | 'CDD';
   category: 'CC2' | 'CC1' | 'M4' | 'MS' | 'SQ' | 'M1' | 'HQ';
   noMatricule: string;
   initials?: string;
+}
+
+
+export interface Employee extends EmployeeBase {
+  dateOfBirth: string;
+  dateOfHire: string;
   attendances?: {
     id: number;
     date: string;
-    status: 'present ' | 'absent' | 'onleave'
+    status: 'present' | 'absent' | 'onleave'
   }[];
 }
 
-export interface CreateEmployeeDto {
+export interface EmployeeFormValues {
+  id?: number;
+  fullName: string;
+  role: string;
+  department: string;
+  salary: number;
+  dateOfBirth: string; // Always use string format in forms: to remember!!!!!!
+  dateOfHire: string;  // Always use string format in forms
+  sex: string;
+  category: 'CC2' | 'CC1' | 'M4' | 'MS' | 'SQ' | 'M1' | 'HQ';
+  contractType: 'CDI' | 'CDD';
+  noMatricule: string;
+}
+
+export interface CreateEmployeeDto  extends Omit<EmployeeFormValues, 'id'>{
   fullName: string;
   role: string;
   department: string;
@@ -44,7 +62,7 @@ export interface CreateAttendanceDto {
   status?: 'present'| 'absent'| 'onleave';
 }
 
-export interface UpdateEmployeeDto {
+export interface UpdateEmployeeDto extends Partial<EmployeeFormValues> {
   fullName?: string;
   role?: string;
   department?: string;
@@ -52,7 +70,7 @@ export interface UpdateEmployeeDto {
   dateOfBirth?: string;
   dateOfHire?: string;
   attendance?: 'present' | 'absent' | 'onleave';
-  category?: string;
+  category?: 'CC2' | 'CC1' | 'M4' | 'MS' | 'SQ' | 'M1' | 'HQ';
   contractType?: 'CDI' | 'CDD';
   noMatricule?: string;
 }

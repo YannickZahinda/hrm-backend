@@ -24,9 +24,10 @@ import { DateDisplay } from '../DateDisplay';
 interface EmployeeTableProps {
   employees: Employee[];
   onDelete: (id: number) => void;
+  onEdit: (id: number) => void;
 }
 
-const EmployeeTable = ({ employees, onDelete }: EmployeeTableProps) => {
+const EmployeeTable = ({ employees, onDelete, onEdit }: EmployeeTableProps) => {
   const getLatestAttendance = (employee: Employee) => {
     if (!employee.attendances || employee.attendances.length === 0) {
       return { status: 'none', date: null };
@@ -136,7 +137,7 @@ const EmployeeTable = ({ employees, onDelete }: EmployeeTableProps) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit(employee.id)}>
                       <Edit className="mr-2 h-4 w-4" />
                       Edit Details
                     </DropdownMenuItem>

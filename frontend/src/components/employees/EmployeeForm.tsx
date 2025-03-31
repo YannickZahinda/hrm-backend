@@ -1,4 +1,4 @@
-import { CreateEmployeeDto } from '@/types/types';
+import { CreateEmployeeDto, Employee, EmployeeFormValues } from '@/types/types';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import {
@@ -11,12 +11,19 @@ import {
 import { Calendar } from 'lucide-react';
 
 interface EmployeeFormProps {
-  employee: CreateEmployeeDto;
+  employee: EmployeeFormValues;
   onChange: (employee: CreateEmployeeDto) => void;
+  onSubmit?: (values: EmployeeFormValues) => void;
+  // onCancel: () => void;
 }
 
-export function EmployeeForm({ employee, onChange }: EmployeeFormProps) {
-  const handleChange = (field: keyof CreateEmployeeDto, value: any) => {
+export function EmployeeForm({
+  employee,
+  onChange,
+}: EmployeeFormProps) {
+  
+
+  const handleChange = (field: keyof EmployeeFormValues, value: any) => {
     onChange({ ...employee, [field]: value });
   };
 

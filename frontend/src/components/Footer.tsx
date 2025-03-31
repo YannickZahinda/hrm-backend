@@ -1,4 +1,3 @@
-import React from 'react';
 import { LinkedinIcon, GithubIcon, MailIcon } from 'lucide-react';
 
 const Footer = () => {

@@ -18,7 +18,13 @@ import EmployeeTable from './employees/EmployeeTable';
 import { EmployeeForm } from './employees/EmployeeForm';
 import { EmployeeFilters } from './employees/EmployeeFilters';
 
-export function EmployeeList() {
+interface EmployeeListProps {
+  // editEmployeeId: (id: number) => void;
+  setEditEmployeeId: (id: number) => void;
+  setActiveView: (view: string) => void;
+}
+
+export function EmployeeList({ setEditEmployeeId, setActiveView}: EmployeeListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false);
@@ -108,6 +114,11 @@ export function EmployeeList() {
     }
   };
 
+  const handleEditEmployee = (id: number) => {
+    setEditEmployeeId(id);
+    setActiveView('edit-employee');
+  }
+
   const resetForm = () => {
     setNewEmployee({
       fullName: '',
@@ -179,6 +190,7 @@ export function EmployeeList() {
         <EmployeeTable
           employees={filteredEmployees}
           onDelete={handleDeleteEmployee}
+          onEdit={handleEditEmployee}
         />
       </div>
     </div>

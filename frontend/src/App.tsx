@@ -1,5 +1,5 @@
 import './App.css'
-import { useState, useEffect } from 'react'
+import { useState} from 'react'
 import { Dashboard } from './components/dashboard'
 import { Sidebar } from './components/sidebar'
 import { EmployeeList } from './components/employee-list'
@@ -7,34 +7,26 @@ import { LeaveManagement } from './components/leave-management'
 import { DocumentManagement } from './components/document-management'
 import { Settings } from './components/settings'
 import Footer from './components/Footer'
+import EmployeeEdit from './components/employees/Employee-edit'
 
 function App() {
   const [activeView, setActiveView] = useState("dashboard");
-
-  useEffect(() => {
-    console.log('App mounted - checking environment:')
-    console.log('NODE_ENV:', process.env.NODE_ENV)
-    console.log('API_BASE_URL:', process.env.API_BASE_URL)
-    
-    // Test API connection
-    fetch('http://localhost:3000/employees/all')
-      .then(res => res.json())
-      .then(data => console.log('API test response:', data))
-      .catch(err => console.error('API test error:', err))
-  }, [])
+  const [editEmployeeId, setEditEmployeeId] = useState<number | null>(null)
 
   const renderContent = () => {
     switch (activeView) {
       case "dashboard":
         return <Dashboard />
       case "employees": 
-        return <EmployeeList />
+        return <EmployeeList setActiveView={setActiveView} setEditEmployeeId={setEditEmployeeId} />
       case "leaves":
         return <LeaveManagement />
       case "documents": 
         return <DocumentManagement />
       case "settings":
         return <Settings />
+      case "edit-employee": 
+        return <EmployeeEdit id={editEmployeeId} setActiveView={setActiveView} />
       default: 
         return <Dashboard />
     }
