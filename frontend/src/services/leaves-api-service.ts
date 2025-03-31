@@ -47,4 +47,44 @@ export const LeaveService = {
         throw new Error('Failed to apply for leave');
     }
   },
+
+  initializeLeaveHistory: async (
+    employeeId: number, 
+    lastLeaveEndDate: string | Date,
+    initialBalance: number
+  ) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/initialize-history/${employeeId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          lastLeaveEndDate,
+          initialBalance,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to initialize leave history');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error initializing leave history:', error);
+      throw error;
+    }
+  },
+
+  async initializeLeavePolicies(){
+    try {
+      const response = await axios.post(`${API_BASE_URL}/initialize-policies`);
+      return response.data;
+    } catch (error) {
+      
+      throw new Error('Unknown error occurred while initializing policies');
+    }
+  }
+
+
 };

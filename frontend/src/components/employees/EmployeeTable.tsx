@@ -20,6 +20,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Edit, FileText, Calendar, Trash } from 'lucide-react';
 import { DateDisplay } from '../DateDisplay';
+import { LeaveHistoryDialog } from '../LeaveHistoryDialog';
+import { useState } from 'react';
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -28,6 +30,12 @@ interface EmployeeTableProps {
 }
 
 const EmployeeTable = ({ employees, onDelete, onEdit }: EmployeeTableProps) => {
+  const [leaveHistoryDialogOpen, setLeaveHistoryDialogOpen] = useState(false);
+  const [selectedEmployeeForLeave, setSelectedEmployeeForLeave] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+
   const getLatestAttendance = (employee: Employee) => {
     if (!employee.attendances || employee.attendances.length === 0) {
       return { status: 'none', date: null };
@@ -149,17 +157,37 @@ const EmployeeTable = ({ employees, onDelete, onEdit }: EmployeeTableProps) => {
                       <Calendar className="mr-2 h-4 w-4" />
                       Manage Leaves
                     </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      onClick={() => {
+                        if (!employee.id) return false;
+                        setSelectedEmployeeForLeave({
+                          id: employee.id,
+                          name: employee.fullName,
+                        });
+                        setLeaveHistoryDialogOpen(true);
+                      }}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      Initialize Leave History
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-red-600"
-                      onClick={() =>
-                        employee.id && onDelete(employee.id)
-                      }
+                      onClick={() => employee.id && onDelete(employee.id)}
                     >
                       <Trash className="mr-2 h-4 w-4" />
                       Delete Employee
                     </DropdownMenuItem>
                   </DropdownMenuContent>
+                  {selectedEmployeeForLeave && (
+                    <LeaveHistoryDialog
+                      isOpen={leaveHistoryDialogOpen}
+                      onClose={() => setLeaveHistoryDialogOpen(false)}
+                      employeeId={selectedEmployeeForLeave.id}
+                      employeeName={selectedEmployeeForLeave.name}
+                    />
+                  )}
                 </DropdownMenu>
               </TableCell>
             </TableRow>

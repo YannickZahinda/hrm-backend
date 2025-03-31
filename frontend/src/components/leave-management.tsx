@@ -36,12 +36,15 @@ import { AttendanceService } from '@/services/attendance-api-service';
 import { Employee, Leave, LeaveEligibilityResponse } from '@/types/types';
 import { toast } from '@/hooks/use-toast';
 import { LeaveService } from '@/services/leaves-api-service';
+import { LeaveHistoryDialog } from './LeaveHistoryDialog';
+import { LeaveBalance } from '@/types/types';
 
 interface LeaveManagementProps {
   employeeId?: number;
+  onBack: () => void;
 }
 
-export function LeaveManagement({ employeeId }: LeaveManagementProps) {
+export function LeaveManagement({ employeeId, onBack }: LeaveManagementProps) {
   const [isAddLeaveOpen, setIsAddLeaveOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -60,6 +63,10 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
   const [endDate, setEndDate] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<Boolean | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employee, setEmployee] = useState<Employee>();
+
+  const [LeaveBalance, setLeaveBalance] = useState<LeaveBalance | null>(null);
+  const [isInitialDialogOpen, setIsInitialDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchLeave();
@@ -76,9 +83,41 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
         console.error('Failed to fetch employees:', error);
       }
     };
+    fetchBalance();
 
     fetchEmployees();
   }, [employeeId]);
+
+  const fetchBalance = async () => {
+    setIsLoading(true);
+    try {
+      if (!employeeId) return false;
+      const employeeData = await EmployeeService.getEmployeeById(employeeId);
+      setEmployee(employeeData);
+
+      try {
+        const balanceData = await LeaveService.getEligibility(employeeId);
+        setLeaveBalance({
+          id: balanceData.balance.id,
+          regularLeaveBalance: balanceData.balance.regularLeaveBalance,
+          lastLeaveEndDate: balanceData.balance.lastLeaveEndDate.toISOString(), // Convert Date to string
+          nextEligibleLeaveBalance:
+            balanceData.balance.nextEligibleLeaveBalance.toISOString(),
+        });
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load employee data',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching balance', error);
+      throw error;
+    }
+  };
 
   const fetchLeave = async () => {
     try {
@@ -146,13 +185,14 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
 
     try {
       setIsSubmitting(true);
-      await LeaveService.applyLeave(
+      const newLeave = await LeaveService.applyLeave(
         selectedEmployee,
         leaveType,
         start,
         end,
         isCompleted,
       );
+      setLeaves((prevLeaves) => [...prevLeaves, newLeave]);
       toast({
         title: 'Success',
         description: 'Leave application submitted successfully',

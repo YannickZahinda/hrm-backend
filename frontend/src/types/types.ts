@@ -75,6 +75,13 @@ export interface Leave {
   }
 }
 
+export interface LeaveBalance {
+  id: number;
+  regularLeaveBalance: number;
+  lastLeaveEndDate: string;
+  nextEligibleLeaveBalance: string;
+}
+
 export interface LeaveEligibilityResponse {
   employee: {
     id?: number;

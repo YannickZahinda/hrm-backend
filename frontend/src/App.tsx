@@ -22,7 +22,7 @@ function App() {
       case "employees": 
         return <EmployeeList setActiveView={setActiveView} setEditEmployeeId={setEditEmployeeId} />
       case "leaves":
-        return <LeaveManagement employeeId={employee?.id} />
+        return <LeaveManagement onBack={() => setActiveView("dashboard")}  employeeId={employee?.id} />
       case "documents": 
         return <DocumentManagement />
       case "settings":

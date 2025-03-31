@@ -1,19 +1,33 @@
-"use client"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
+'use client';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { LeaveService } from '@/services/leaves-api-service';
+import { Loader2 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 export function Settings() {
+  const [isInitializing, setIsInitializing] = useState(false);
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">Manage your application settings</p>
+        <p className="text-muted-foreground">
+          Manage your application settings
+        </p>
       </div>
 
       <Tabs defaultValue="general" className="w-full">
@@ -33,11 +47,18 @@ export function Settings() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="companyName">Company Name</Label>
-                  <Input id="companyName" defaultValue="Pearl Logistic and Civil Engineering Services" />
+                  <Input
+                    id="companyName"
+                    defaultValue="Pearl Logistic and Civil Engineering Services"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="companyEmail">Email</Label>
-                  <Input id="companyEmail" type="email" defaultValue="christinezagabe@gmail.com" />
+                  <Input
+                    id="companyEmail"
+                    type="email"
+                    defaultValue="christinezagabe@gmail.com"
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -47,7 +68,10 @@ export function Settings() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="companyAddress">Address</Label>
-                  <Input id="companyAddress" defaultValue="123 Business Ave, Durba" />
+                  <Input
+                    id="companyAddress"
+                    defaultValue="123 Business Ave, Durba"
+                  />
                 </div>
               </div>
             </CardContent>
@@ -59,13 +83,17 @@ export function Settings() {
           <Card>
             <CardHeader>
               <CardTitle>Application Settings</CardTitle>
-              <CardDescription>Customize your application behavior</CardDescription>
+              <CardDescription>
+                Customize your application behavior
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="autoBackup">Automatic Backups</Label>
-                  <p className="text-sm text-muted-foreground">Create automatic backups of your data</p>
+                  <p className="text-sm text-muted-foreground">
+                    Create automatic backups of your data
+                  </p>
                 </div>
                 <Switch id="autoBackup" defaultChecked />
               </div>
@@ -73,7 +101,9 @@ export function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="darkMode">Dark Mode</Label>
-                  <p className="text-sm text-muted-foreground">Enable dark mode for the application</p>
+                  <p className="text-sm text-muted-foreground">
+                    Enable dark mode for the application
+                  </p>
                 </div>
                 <Switch id="darkMode" />
               </div>
@@ -85,14 +115,18 @@ export function Settings() {
           <Card>
             <CardHeader>
               <CardTitle>Leave Policy Configuration</CardTitle>
-              <CardDescription>Configure leave policies for different employee categories</CardDescription>
+              <CardDescription>
+                Configure leave policies for different employee categories
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">CC2 Category</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="cc2Regular">Regular Leave (days/year)</Label>
+                    <Label htmlFor="cc2Regular">
+                      Regular Leave (days/year)
+                    </Label>
                     <Input id="cc2Regular" type="number" defaultValue="22" />
                   </div>
                   <div className="space-y-2">
@@ -108,7 +142,9 @@ export function Settings() {
                 <h3 className="text-lg font-medium">CC1 & M4 Categories</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="cc1Regular">Regular Leave (days/year)</Label>
+                    <Label htmlFor="cc1Regular">
+                      Regular Leave (days/year)
+                    </Label>
                     <Input id="cc1Regular" type="number" defaultValue="26" />
                   </div>
                   <div className="space-y-2">
@@ -121,7 +157,9 @@ export function Settings() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">MS, SQ, M1 & HQ Categories</h3>
+                <h3 className="text-lg font-medium">
+                  MS, SQ, M1 & HQ Categories
+                </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="msRegular">Regular Leave (days/year)</Label>
@@ -142,17 +180,48 @@ export function Settings() {
           <Card>
             <CardHeader>
               <CardTitle>Initialize Leave Policies</CardTitle>
-              <CardDescription>Initialize or reset leave policies for all employees</CardDescription>
+              <CardDescription>
+                Initialize or reset leave policies for all employees
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                This will initialize leave policies for all employees based on their categories. Use this when setting
-                up the system for the first time or when making major policy changes.
+                This will initialize leave policies for all employees based on
+                their categories. Use this when setting up the system for the
+                first time or when making major policy changes.
               </p>
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button variant="outline">Reset to Defaults</Button>
-              <Button>Initialize Policies</Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    await LeaveService.initializeLeavePolicies();
+                    toast({
+                      title: 'Success',
+                      description: 'Leave policies initialized successfully',
+                    });
+                  } catch (error) {
+                    toast({
+                      title: 'Error',
+                      description: 'Failed to initialize policies',
+                      variant: 'destructive',
+                    });
+                  } finally{
+                    setIsInitializing(false);
+                  }
+                }}
+                disabled={isInitializing}
+              >
+                {isInitializing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Initializing...
+                  </>
+                ) : (
+                  'Initialize Policies'
+                )}
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -161,16 +230,22 @@ export function Settings() {
           <Card>
             <CardHeader>
               <CardTitle>Backup Data</CardTitle>
-              <CardDescription>Create a backup of your HRMS data</CardDescription>
+              <CardDescription>
+                Create a backup of your HRMS data
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Create a complete backup of all your employee data, leave records, and documents. The backup will be
-                downloaded as a compressed file.
+                Create a complete backup of all your employee data, leave
+                records, and documents. The backup will be downloaded as a
+                compressed file.
               </p>
               <div className="space-y-2">
                 <Label htmlFor="backupName">Backup Name</Label>
-                <Input id="backupName" defaultValue={`HRMS_Backup_${new Date().toISOString().split("T")[0]}`} />
+                <Input
+                  id="backupName"
+                  defaultValue={`HRMS_Backup_${new Date().toISOString().split('T')[0]}`}
+                />
               </div>
             </CardContent>
             <CardFooter>
@@ -181,12 +256,14 @@ export function Settings() {
           <Card>
             <CardHeader>
               <CardTitle>Restore Data</CardTitle>
-              <CardDescription>Restore your HRMS data from a backup</CardDescription>
+              <CardDescription>
+                Restore your HRMS data from a backup
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground mb-4">
-                Restore your data from a previously created backup file. This will replace all current data with the
-                data from the backup.
+                Restore your data from a previously created backup file. This
+                will replace all current data with the data from the backup.
               </p>
               <div className="grid w-full max-w-sm items-center gap-1.5">
                 <Label htmlFor="backupFile">Upload Backup File</Label>
@@ -200,6 +277,5 @@ export function Settings() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
-
