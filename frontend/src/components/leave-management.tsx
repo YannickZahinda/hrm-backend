@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -18,12 +18,39 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, Plus, Search, Check, X, Edit } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { EmployeeService } from "@/services/employee-api-service"
+import { AttendanceService } from "@/services/attendance-api-service"
+import { Attendance } from "@/types/types"
+import { toast } from "@/hooks/use-toast"
 
 export function LeaveManagement() {
-  const [isAddLeaveOpen, setIsAddLeaveOpen] = useState(false)
+  const [isAddLeaveOpen, setIsAddLeaveOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null)
   const [isEligibilityOpen, setIsEligibilityOpen] = useState(false)
+
+  useEffect(() => {
+    fetchAttendance();
+  }, []);
+
+  const fetchAttendance = async() => {
+    try {
+      setIsLoading(true);
+      const fetchedAttendance = await AttendanceService.getAllAttendances();
+      setAttendance(fetchedAttendance);
+
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch attendance',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const employees = [
     {

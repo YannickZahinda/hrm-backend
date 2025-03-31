@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { EmployeeService } from '@/services/employee-api-service';
 import {
-  CreateEmployeeDto,
-  Employee,
   EmployeeFormValues,
   UpdateEmployeeDto,
 } from '@/types/types';
@@ -57,13 +55,6 @@ const EmployeeEdit: React.FC<EmployeeEditProps> = ({ id, setActiveView }) => {
     };
     fetchEmployee();
   }, [id]);
-
-  //   const handleSubmit = (e: React.FormEvent) => {
-  //     e.preventDefault();
-  //     if (onSubmit) {
-  //       onSubmit(employee);
-  //     }
-  //   };
 
   const handleSubmit = async (updatedData: UpdateEmployeeDto) => {
     if (!id || !employee) return;
