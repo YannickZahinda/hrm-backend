@@ -33,10 +33,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EmployeeService } from '@/services/employee-api-service';
 import { AttendanceService } from '@/services/attendance-api-service';
-import { Leave, LeaveEligibilityResponse } from '@/types/types';
+import { Employee, Leave, LeaveEligibilityResponse } from '@/types/types';
 import { toast } from '@/hooks/use-toast';
 import { LeaveService } from '@/services/leaves-api-service';
-import { Value } from '@radix-ui/react-select';
 
 interface LeaveManagementProps {
   employeeId?: number;
@@ -47,12 +46,20 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [leaves, setLeaves] = useState<Leave[]>([]);
-  const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
   const [isEligibilityOpen, setIsEligibilityOpen] = useState(false);
   const [eligibility, setEligibility] =
     useState<LeaveEligibilityResponse | null>(null);
   const [isEligibilityLoading, setIsEligibilityLoading] = useState(false);
   const [eligibilityError, setEligibilityError] = useState<string | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
+  const [leaveType, setLeaveType] = useState<'regular' | 'sick' | 'special'>(
+    'regular',
+  );
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<Boolean | null>(null);
+  const [employees, setEmployees] = useState<Employee[]>([]);
 
   useEffect(() => {
     fetchLeave();
@@ -61,6 +68,16 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
     } else {
       console.error('Invalid employeeId: ', employeeId);
     }
+    const fetchEmployees = async () => {
+      try {
+        const allEmployees = await EmployeeService.getAllEmployees();
+        setEmployees(allEmployees);
+      } catch (error) {
+        console.error('Failed to fetch employees:', error);
+      }
+    };
+
+    fetchEmployees();
   }, [employeeId]);
 
   const fetchLeave = async () => {
@@ -96,7 +113,62 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
     }
   };
 
-  // Mock leave data based on the entity
+  const handleSubmit = async () => {
+    if (!selectedEmployee) {
+      toast({
+        title: 'Error',
+        description: 'Please select an employee',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!startDate || !endDate) {
+      toast({
+        title: 'Error',
+        description: 'Please select both start and end dates',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start > end) {
+      toast({
+        title: 'Error',
+        description: 'End date must be after start date',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await LeaveService.applyLeave(
+        selectedEmployee,
+        leaveType,
+        start,
+        end,
+        isCompleted,
+      );
+      toast({
+        title: 'Success',
+        description: 'Leave application submitted successfully',
+      });
+      setIsAddLeaveOpen(false);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description:
+          error instanceof Error ? error.message : 'Failed to apply for leave',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const filteredLeaves = leaves.filter((leave) => {
     if (!leave) return false;
@@ -133,29 +205,31 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
                   Check leave eligibility for an employee
                 </DialogDescription>
               </DialogHeader>
-              
+
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="eligibilityEmployee" className="text-right">
                     Employee
                   </Label>
-                  <Select onValueChange={async (value) => {
-                    const employeeId = parseInt(value, 10);
-                    try {
-                      setIsLoading(true);
-                      setEligibilityError(null);
-                      const data = await LeaveService.getEligibility(employeeId);
-                      setEligibility(data)
-                      
-                    } catch (error) {
-                      setEligibilityError('Failed to fetch eligibility data');
-                      console.log(error);
-                      
-                    }finally {
-                      setIsEligibilityLoading(false)
-                    }
-                    if(isEligibilityLoading) return <div>Loading eligibility....</div>
-                  }}>
+                  <Select
+                    onValueChange={async (value) => {
+                      const employeeId = parseInt(value, 10);
+                      try {
+                        setIsLoading(true);
+                        setEligibilityError(null);
+                        const data =
+                          await LeaveService.getEligibility(employeeId);
+                        setEligibility(data);
+                      } catch (error) {
+                        setEligibilityError('Failed to fetch eligibility data');
+                        console.log(error);
+                      } finally {
+                        setIsEligibilityLoading(false);
+                      }
+                      if (isEligibilityLoading)
+                        return <div>Loading eligibility....</div>;
+                    }}
+                  >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
@@ -317,7 +391,7 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
                   </div>
                 )}
               </div>
-     
+
               <DialogFooter>
                 <Button onClick={() => setIsEligibilityOpen(false)}>
                   Close
@@ -354,19 +428,24 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
                       <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
                     <SelectContent>
-                      {leaves.map((leave) => {
-                        if (!leave || !leave.employee || !leave.employee.id)
-                          return false;
-                        return (
-                          <SelectItem
-                            key={leave.employee.id}
-                            value={leave.employee.id.toString()}
-                          >
-                            {leave.employee.fullName} ({leave.employee.category}
-                            )
-                          </SelectItem>
-                        );
-                      })}
+                      {isLoading ? (
+                        <div className="p-2 text-center text-sm text-muted-foreground">
+                          Loading employees...
+                        </div>
+                      ) : (
+                        employees.map((employee) => {
+                          if (!employee.id) return false;
+
+                          return (
+                            <SelectItem
+                              key={employee.id}
+                              value={employee.id.toString()}
+                            >
+                              {employee.fullName} ({employee.category})
+                            </SelectItem>
+                          );
+                        })
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -374,7 +453,12 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
                   <Label htmlFor="leaveType" className="text-right">
                     Leave Type
                   </Label>
-                  <Select>
+                  <Select
+                    value={leaveType}
+                    onValueChange={(value: 'regular' | 'sick' | 'special') =>
+                      setLeaveType(value)
+                    }
+                  >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Select leave type" />
                     </SelectTrigger>
@@ -389,19 +473,36 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
                   <Label htmlFor="startDate" className="text-right">
                     Start Date
                   </Label>
-                  <Input id="startDate" type="date" className="col-span-3" />
+                  <Input
+                    id="startDate"
+                    type="date"
+                    className="col-span-3"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="endDate" className="text-right">
                     End Date
                   </Label>
-                  <Input id="endDate" type="date" className="col-span-3" />
+                  <Input
+                    id="endDate"
+                    type="date"
+                    className="col-span-3"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    min={startDate || new Date().toISOString().split('T')[0]}
+                  />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="isCompleted" className="text-right">
                     Status
                   </Label>
-                  <Select>
+                  <Select
+                    value={isCompleted.toString()}
+                    onValueChange={(value) => setIsCompleted(value === 'true')}
+                  >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -419,7 +520,13 @@ export function LeaveManagement({ employeeId }: LeaveManagementProps) {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" onClick={() => setIsAddLeaveOpen(false)}>
+                <Button
+                  type="submit"
+                  onClick={() => {
+                    handleSubmit();
+                    setIsAddLeaveOpen(false);
+                  }}
+                >
                   Register Leave
                 </Button>
               </DialogFooter>

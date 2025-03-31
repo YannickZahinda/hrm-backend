@@ -33,21 +33,21 @@ export function Settings() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="companyName">Company Name</Label>
-                  <Input id="companyName" defaultValue="ACME Corporation" />
+                  <Input id="companyName" defaultValue="Pearl Logistic and Civil Engineering Services" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="companyEmail">Email</Label>
-                  <Input id="companyEmail" type="email" defaultValue="hr@acmecorp.com" />
+                  <Input id="companyEmail" type="email" defaultValue="christinezagabe@gmail.com" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="companyPhone">Phone</Label>
-                  <Input id="companyPhone" defaultValue="+212 5XX-XXXXXX" />
+                  <Input id="companyPhone" defaultValue="+243 994078107" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="companyAddress">Address</Label>
-                  <Input id="companyAddress" defaultValue="123 Business Ave, Casablanca" />
+                  <Input id="companyAddress" defaultValue="123 Business Ave, Durba" />
                 </div>
               </div>
             </CardContent>
